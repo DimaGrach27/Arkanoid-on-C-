@@ -304,6 +304,7 @@
       <SDLCheck>true</SDLCheck>
       <LinkCompiled>true</LinkCompiled>
     </ClCompile>
+    <ClCompile Include="SafeZone.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Ball.h" />
@@ -312,6 +313,7 @@
     <ClInclude Include="Framework.h" />
     <ClInclude Include="Helpers.h" />
     <ClInclude Include="Platform.h" />
+    <ClInclude Include="SafeZone.h" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="data\01-Breakout-Tiles.png" />

@@ -7,6 +7,7 @@
 #include "Block.h"
 #include "Constans.h"
 #include "Platform.h"
+#include "SafeZone.h"
 
 using std::string;
 
@@ -14,14 +15,12 @@ class Drogonoid final : public Framework {
 
 public:
 
-    Ball ball;
-    Platform platform;
-    Block block[count_bricks];
-
     void PreInit(int& width, int& height, bool& fullscreen) override
     {
         width = 800;
         height = 600;
+
+        bottom_edge = height;
         fullscreen = false;
     }
 
@@ -30,6 +29,7 @@ public:
         init_bg_sprite();
         platform.Init();
         ball.Init();
+        safe_zone.init();
         
         for (int i = 0; i < 8; i++)
         {
@@ -78,6 +78,7 @@ public:
         }
         
         platform.Tick();
+        safe_zone.draw();
         ball.Tick();
 
         start_game();
@@ -103,7 +104,6 @@ public:
             const float vec_mag_ = sqrt(vec_dir_x * vec_dir_x + vec_dir_y * vec_dir_y);
             const float vec_inv_mag_ = 1 / vec_mag_;
             
-
             ball.set_dir_x(vec_dir_x * vec_inv_mag_);
             ball.set_dir_x(vec_dir_y * vec_inv_mag_);
             
@@ -139,9 +139,15 @@ public:
 
 private:
 
+    Ball ball;
+    Platform platform;
+    Block block[count_bricks];
+    SafeZone safe_zone;
+    
     vector2_int mouse_pos {0,0};
 
     int count = 0;
+    int bottom_edge = 0;
     
     Sprite* field_sprite_ = nullptr;
 
@@ -153,6 +159,7 @@ private:
             
             platform.start();
             ball.start();
+            safe_zone.restart();
 
             for (int i = 0; i < 64; i++)
             {
@@ -178,8 +185,14 @@ private:
     
     void calculate_near_element()
     {
-        if (ball.pos.y + ball.ball_size_ > platform.pos.y + platform.size.y)
+        if (ball.pos.y + ball.ball_size_ == bottom_edge)
         {
+            if(safe_zone.isAlive())
+            {
+                safe_zone.death();
+                return;    
+            }
+            
             ball.is_game_end = true;
             //TODO: lose game
             start_game();

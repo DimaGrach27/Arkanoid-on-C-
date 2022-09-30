@@ -112,14 +112,12 @@ void Ball::ball_move()
     {
         part_pos.x--;
         pos.x += 1;
-        is_ball_in_field_ = true;
     }
 
     if(part_pos.x < -1)
     {
         part_pos.x++;
         pos.x -= 1;
-        is_ball_in_field_ = true;
     }
 
     part_pos.y += direction.y * ball_speed_;
@@ -128,22 +126,18 @@ void Ball::ball_move()
     {
         part_pos.y--;
         pos.y += 1;
-        is_ball_in_field_ = true;
     }
 
     if(part_pos.y < -1)
     {
         part_pos.y++;
         pos.y -= 1;
-
-        is_ball_in_field_ = true;
     }
     
     int screen_x;
     int screen_y;
     getScreenSize(screen_x, screen_y);
     
-
     if(pos.x <= 0)
     {
         set_dir_x(0.5f);
@@ -162,13 +156,6 @@ void Ball::ball_move()
     {
         direction.y *= -1;
         part_pos.y = direction.y;
-
-        is_ball_in_field_ = false;
-    }
-
-    if(pos.y == screen_y - ball_size_)
-    {
-        is_game_end = true;
     }
 }
 
