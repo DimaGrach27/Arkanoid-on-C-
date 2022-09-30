@@ -1,9 +1,7 @@
-#include <chrono>
 #include <iostream>
 #include <string>
 
 #include "Framework.h"
-#include "IStart.h"
 #include "Helpers.h"
 #include "Ball.h"
 #include "Block.h"
@@ -20,8 +18,6 @@ public:
     Platform platform;
     Block block[64];
 
-    IStart starts[66];
-    
     void PreInit(int& width, int& height, bool& fullscreen) override
     {
         width = 800;
@@ -31,10 +27,6 @@ public:
 
     bool Init() override
     {
-        starts[0] = static_cast<IStart>(platform);
-        starts[1] = static_cast<IStart>(ball);
-
-        
         init_bg_sprite();
         platform.Init();
         ball.Init();
@@ -50,7 +42,6 @@ public:
             
             for (int j = 0; j < 8; j++)
             {
-                starts[count + 2] = static_cast<IStart>(block[count]);
                 offset = j > 0 ? 8 : 0;
                 spawn_pos.x = 12 + j * block_size.x + j * offset;
                 block[count].init_block(13, spawn_pos);
@@ -83,6 +74,7 @@ public:
 
         for (int i = 0; i < count; i++)
         {
+            // if(!ball.is_game_end) block[i].is_show = true;
             block[i].show_block();
         }
         
@@ -146,13 +138,16 @@ public:
 
     void start_game()
     {
-        if(is_game_end)
+        if(ball.is_game_end)
         {
-            is_game_end = false;
-
-            for (auto i_start : starts)
+            ball.is_game_end = false;
+            
+            platform.start();
+            ball.start();
+            
+            for (auto block_ : block)
             {
-                i_start.start();
+                block_.start();
             }
         }
     }
@@ -265,8 +260,16 @@ private:
     // }
 };
 
+#include <Windows.h>
+#define _SOLUTIONDIR R"($(SolutionDir))"
 
 int main(int argc, char* argv[])
 {
     return run(new Drogonoid);
+
+    // std::string SolDir = getenv("$(SolutionDir)");
+    // cout << SolDir << std::endl;
+
+    
+    // return 0;
 }

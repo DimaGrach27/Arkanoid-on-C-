@@ -1,9 +1,8 @@
 ﻿#pragma once
 #include "Framework.h"
 #include "Helpers.h"
-#include "IStart.h"
 
-class Platform : public IStart
+class Platform
 {
     
 public:
@@ -12,7 +11,7 @@ public:
     
     void Init();
     void Tick();
-    void start() override;
+    void start();
     void set_move_direction(int value);
     
 private:

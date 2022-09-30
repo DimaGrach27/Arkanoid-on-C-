@@ -311,7 +311,6 @@
     <ClInclude Include="Constans.h" />
     <ClInclude Include="Framework.h" />
     <ClInclude Include="Helpers.h" />
-    <ClInclude Include="IStart.h" />
     <ClInclude Include="Platform.h" />
   </ItemGroup>
   <ItemGroup>

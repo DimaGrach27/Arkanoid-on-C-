@@ -1,9 +1,8 @@
 ﻿#pragma once
-#include "Ball.h"
+#include "Framework.h"
 #include "Helpers.h"
-#include "IStart.h"
 
-class Block : public IStart
+class Block
 {
 public:
     bool is_show = true;
@@ -11,7 +10,7 @@ public:
     vector2_int pos {0,0};
 
     void init_block(int sprite_num, vector2_int position);
-    void start() override;
+    void start();
     void show_block();
     void destroy_block();
 private:

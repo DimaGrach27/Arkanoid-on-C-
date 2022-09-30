@@ -13,7 +13,7 @@ public:
     
     static string get_path_to_sprite(int number_sprite)
     {
-        const string data_folder = "F:/Dima/Development/C++ projects/Dragonoid/Dragonoid/Dragonoid/data/";
+        const string data_folder = "F:/Dima/Development/C++ projects/Dragonoid/Dragonoid/data/";
         const string sprite_name = "-Breakout-Tiles.png";
         
         string path = data_folder + to_string(number_sprite) + sprite_name;

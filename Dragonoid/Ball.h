@@ -1,14 +1,14 @@
 ﻿#pragma once
 #include "Framework.h"
 #include "Helpers.h"
-#include "IStart.h"
 
-class Ball : public IStart
+class Ball
 {
     
 public:
     bool is_ball_on_platform_ = true;
-
+    bool is_game_end = false;
+    
     const int ball_size_ = 30;
 
     vector2_int pos {0,0};
@@ -16,7 +16,7 @@ public:
     
     void Init();
     void Tick();
-    void start() override;
+    void start();
     void draw_line_to_mouse(vector2_int mouse_pos) const;
     void ball_on_platform_position_update(vector2_int platform_pos, vector2_int platform_size);
     void set_direction(vector2_float dir);

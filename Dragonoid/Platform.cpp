@@ -66,8 +66,6 @@ void Platform::init_platform_sprites(int count_sprites)
 
 void Platform::move_platform()
 {
-    if(is_game_end) return;
-    
     const int newPosition = pos.x + move_direction_ * platform_speed_;
 
     int screen_x;
