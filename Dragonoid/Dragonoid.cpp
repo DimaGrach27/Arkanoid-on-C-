@@ -104,7 +104,9 @@ public:
             const float vec_inv_mag_ = 1 / vec_mag_;
             
 
-            ball.set_direction({vec_dir_x * vec_inv_mag_, vec_dir_y * vec_inv_mag_});
+            ball.set_dir_x(vec_dir_x * vec_inv_mag_);
+            ball.set_dir_x(vec_dir_y * vec_inv_mag_);
+            
             ball.is_ball_on_platform_ = false;
         }
     }
@@ -135,6 +137,14 @@ public:
         return "Dragonoid";
     }
 
+private:
+
+    vector2_int mouse_pos {0,0};
+
+    int count = 0;
+    
+    Sprite* field_sprite_ = nullptr;
+
     void start_game()
     {
         if(ball.is_game_end)
@@ -150,15 +160,6 @@ public:
             }
         }
     }
-
-private:
-
-    vector2_int mouse_pos {0,0};
-
-    int count = 0;
-    
-    Sprite* field_sprite_ = nullptr;
-    
 
     void init_bg_sprite()
     {
@@ -177,43 +178,13 @@ private:
     
     void calculate_near_element()
     {
-        // AABB element_proection;
-        // bool is_was_collision = false;
-        // int count_destroy = 3;
-        // for (int i = 0; i < count; i++)
-        // {
-        //     block[i].show_block();
-        //
-        //     if(!block[i].is_show) continue;
-        //     
-        //     constexpr int offset = 3;
-        //     element_proection.x_min = block[i].pos.x + offset;
-        //     element_proection.x_max = block[i].pos.x + block_size.x + offset;
-        //     element_proection.y_min = block[i].pos.y + offset;
-        //     element_proection.y_max = block[i].pos.y + block_size.y + offset;
-        //
-        //     ball.set_object_proection(element_proection, false, is_was_collision);
-        //     
-        //     if(is_was_collision)
-        //     {
-        //         block[i].destroy_block();
-        //         count_destroy--;
-        //
-        //         if(count_destroy <= 0) return;
-        //     }
-        // }
-        //
-        // constexpr int offset = 10;
-        // element_proection.x_min = platform.pos.x + offset;
-        // element_proection.x_max = platform.pos.x + platform.size.x + offset;
-        // element_proection.y_min = platform.pos.y + offset;
-        // element_proection.y_max = platform.pos.y + platform.size.y + offset;
-        //
-        // ball.set_object_proection(element_proection, true, is_was_collision);
-        
         if (ball.pos.y + ball.ball_size_ > platform.pos.y + platform.size.y)
         {
             ball.is_game_end = true;
+            //TODO: lose game
+            start_game();
+            std::cout << "LOSE!" << std::endl;
+            return;
         }
 
         for (int i=0, j=0; i<count_bricks; i++)
@@ -226,25 +197,27 @@ private:
             if (j == count_bricks)
             {
                 //TODO: win game
-                std::cout << "WIN!";
+                start_game();
+                std::cout << "WIN!" << std::endl;
+                return;
             }
         }
 
         if (intersects(ball.get_ball_AABB(), platform.get_ball_AABB())) {
             
-            ball.direction.x = -0.6f +
+            float direction = -0.6f +
             static_cast<float>(ball.pos.x + ball.ball_size_ / 2 - platform.get_ball_AABB().x_min) /
                 (platform.get_ball_AABB().x_max - platform.get_ball_AABB().x_min) * 1.2f;
 
-            if(ball.direction.x > 0.6f) ball.direction.x = 0.6f;
-            if(ball.direction.x < -0.6f) ball.direction.x = -0.6f;
+            if(direction > 0.6f) direction= 0.6f;
+            if(direction < -0.6f) direction = -0.6f;
+
+            ball.set_dir_x(direction);
         
-            ball.direction.y = 1.0f - abs(ball.direction.x);
-            ball.direction.y *= -1;
+            direction = 1.0f - abs(direction);
+            direction *= -1;
 
-            ball.part_pos.x = ball.direction.x;
-            ball.part_pos.y = ball.direction.y;
-
+            ball.set_dir_y(direction);
             return;
         }
 
@@ -262,25 +235,22 @@ private:
                     if(contains(point_right, block[i].get_ball_AABB()) ||
                         contains(point_left, block[i].get_ball_AABB()))
                     {
-                        ball.direction.x *= -1;
+                        ball.invert_dir_x();
                     }
 
                     if(contains(point_top, block[i].get_ball_AABB()) ||
                         contains(point_bottom, block[i].get_ball_AABB()))
                     {
-                        ball.direction.y *= -1;
+                        ball.invert_dir_y();
                     }
-                    
-                    ball.part_pos.x = ball.direction.x;
-                    ball.part_pos.y = ball.direction.y;
-
+          
                     block[i].destroy_block();
                 }
             }
         }
     }
 
-    bool intersects(AABB one, AABB two)
+    static bool intersects(AABB one, AABB two)
     {
         if(one.x_max < two.x_min || one.x_min > two.x_max) return false;
         if(one.y_max < two.y_min || one.y_min > two.y_max) return false;
@@ -288,7 +258,7 @@ private:
         return true;
     }
 
-    bool contains(vector2_int point, AABB box)
+    static bool contains(vector2_int point, AABB box)
     {
         if(point.x < box.x_min || point.x > box.x_max) return false;
         if(point.y < box.y_min || point.y > box.y_max) return false;
@@ -297,16 +267,9 @@ private:
     }
 };
 
-//#include <Windows.h>
-//#define _SOLUTIONDIR R"($(SolutionDir))"
 
 int main(int argc, char* argv[])
 {
     return run(new Drogonoid);
-
-    // std::string SolDir = getenv("$(SolutionDir)");
-    // cout << SolDir << std::endl;
-
     
-    // return 0;
 }

@@ -13,7 +13,7 @@ public:
     void Tick();
     void start();
     void set_move_direction(int value);
-    AABB get_ball_AABB();
+    AABB get_ball_AABB() const;
     
 private:
     int tick_ = 0;

@@ -34,7 +34,7 @@ void Platform::Tick()
     animation_platform();
 }
 
-AABB Platform::get_ball_AABB()
+AABB Platform::get_ball_AABB() const
 {
     return  {pos.x, pos.y, pos.x + size.x, pos.y + size.y};
 }
