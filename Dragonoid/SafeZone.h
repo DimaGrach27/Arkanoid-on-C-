@@ -10,6 +10,7 @@ public:
     void death();
     void draw() const;
     bool isAlive() const;
+    
 private:
     bool is_alive = true;
     

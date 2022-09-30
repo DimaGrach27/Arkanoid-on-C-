@@ -6,16 +6,14 @@ class Ball
 {
     
 public:
-    bool is_ball_on_platform_ = true;
-    bool is_game_end = false;
-    
     const int ball_size_ = 30;
 
     vector2_int pos {0,0};
     
-    void Init();
-    void Tick();
-    void start();
+    void init();
+    void restart();
+    void ball_move();
+    void draw_ball() const;
     void draw_line_to_mouse(vector2_int mouse_pos) const;
     void ball_on_platform_position_update(vector2_int platform_pos, vector2_int platform_size);
     void set_dir_x(float dir_x);
@@ -26,8 +24,6 @@ public:
     AABB get_ball_AABB() const;
 
 private:
-    bool is_ball_in_field_ = false;
-    
     constexpr static int count_balls_ = 100;
     
     const float ball_speed_ = 3;
@@ -41,7 +37,4 @@ private:
     Sprite* ball_sprite_ = nullptr;
     Sprite* ball_small_sprite_[count_balls_] = {};
 
-    void draw_ball() const;
-    void init_ball_sprite();
-    void ball_move();
 };

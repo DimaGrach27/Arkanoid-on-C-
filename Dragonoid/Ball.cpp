@@ -4,24 +4,9 @@
 
 #include "Helpers.h"
 
-void Ball::Init()
+void Ball::restart()
 {
-    init_ball_sprite();
-}
 
-void Ball::Tick()
-{
-    if(!is_ball_on_platform_ || is_game_end)
-    {
-        ball_move();
-    }
-
-    draw_ball();
-}
-
-void Ball::start()
-{
-    is_ball_on_platform_ = true;
 }
 
 void Ball::draw_line_to_mouse(vector2_int mouse_pos) const
@@ -61,9 +46,9 @@ void Ball::ball_on_platform_position_update(vector2_int platform_pos, vector2_in
 {
     // ball_pos_X_ = 0;
     // ball_pos_Y_ = 0;
-    pos.x = platform_pos.x + platform_size.x / 2;
+    pos.x = platform_pos.x + platform_size.x / 2 - ball_size_ / 2;
     pos.y = platform_pos.y;
-    pos.y -= platform_size.y / 2 + ball_size_ / 2;
+    pos.y -= platform_size.y / 2 + ball_size_ / 3;
 }
 
 void Ball::set_dir_x(float dir_x)
@@ -94,7 +79,7 @@ void Ball::draw_ball() const
     setSpriteSize(ball_sprite_, ball_size_, ball_size_);
 }
 
-void Ball::init_ball_sprite()
+void Ball::init()
 {
     ball_sprite_ = createSprite(Helpers::get_path_to_sprite(58).c_str());
 
