@@ -62,10 +62,10 @@ struct vector2_float
     float y;
 };
 
-struct proection
+struct AABB
 {
     int x_min = 0;
-    int x_max = 0;
     int y_min = 0;
+    int x_max = 0;
     int y_max = 0;
 };

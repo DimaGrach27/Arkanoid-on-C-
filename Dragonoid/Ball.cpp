@@ -53,6 +53,12 @@ void Ball::draw_line_to_mouse(vector2_int mouse_pos) const
     }
 }
 
+AABB Ball::get_ball_AABB()
+{
+    return  {pos.x, pos.y, pos.x + ball_size_, pos.y + ball_size_};
+}
+
+
 void Ball::ball_on_platform_position_update(vector2_int platform_pos, vector2_int platform_size)
 {
     // ball_pos_X_ = 0;
@@ -66,91 +72,92 @@ void Ball::set_direction(vector2_float dir)
     direction = part_pos = dir;
 }
 
-void Ball::set_object_proection(proection proect, bool is_player_platform, bool &is_was_collision)
-{
-    proection_ = proect;
-    
-    mine_proection_.x_min = pos.x;
-    mine_proection_.x_max = pos.x + ball_size_;
-    mine_proection_.y_min = pos.y;
-    mine_proection_.y_max = pos.y + ball_size_;
-
-    // if(!is_ball_in_field_) return;
-
-    if(mine_proection_.x_max >= proection_.x_min &&
-        mine_proection_.y_max > proection_.y_min &&
-        mine_proection_.y_max < proection_.y_max &&
-        mine_proection_.y_min < proection_.y_max &&
-        mine_proection_.y_min > proection_.y_min &&
-        mine_proection_.x_min < proection_.x_min)
-    {
-        // from right
-        direction.x *= -1;
-        part_pos.x = direction.x;
-        is_was_collision = true;
-        // is_ball_in_field_ = false;
-    }
-
-    if(mine_proection_.x_min <= proection_.x_max &&
-        mine_proection_.y_max > proection_.y_min &&
-        mine_proection_.y_max < proection_.y_max &&
-        mine_proection_.y_min < proection_.y_max &&
-        mine_proection_.y_min > proection_.y_min &&
-        mine_proection_.x_max > proection_.x_max)
-    {
-        // from left
-        direction.x *= -1;
-        part_pos.x = direction.x;
-        is_was_collision = true;
-        // is_ball_in_field_ = false;
-    }
-
-    if(mine_proection_.y_max >= proection_.y_min &&
-        mine_proection_.x_min < proection_.x_max &&
-        mine_proection_.x_min > proection_.x_min &&
-        mine_proection_.x_max > proection_.x_min &&
-        mine_proection_.x_max < proection_.x_max &&
-        mine_proection_.y_min < proection_.y_min)
-    {
-        // from up
-        direction.y *= -1;
-        part_pos.y = direction.y;
-        is_was_collision = true;
-        // is_ball_in_field_ = false;
-    }
-
-    if(mine_proection_.y_min <= proection_.y_max &&
-        mine_proection_.x_min < proection_.x_max &&
-        mine_proection_.x_min > proection_.x_min &&
-        mine_proection_.x_max > proection_.x_min &&
-        mine_proection_.x_max < proection_.x_max &&
-        mine_proection_.y_max > proection_.y_max)
-    {
-        // from down
-        direction.y *= -1;
-        part_pos.y = direction.y;
-        is_was_collision = true;
-        // is_ball_in_field_ = false;
-    }
-
-    if(!is_ball_in_field_) return;
-    
-    if(is_was_collision && is_player_platform)
-    {
-        direction.x = -0.6f +
-            static_cast<float>(pos.x + ball_size_ / 2 - proection_.x_min) /
-                (proection_.x_max - proection_.x_min) * 1.2f;
-
-        if(direction.x > 0.6f) direction.x = 0.6f;
-        if(direction.x < -0.6f) direction.x = -0.6f;
-        
-        direction.y = 1.0f - abs(direction.x);
-        direction.y *= -1;
-
-        part_pos.x = direction.x;
-        part_pos.y = direction.y;
-    }
-}
+// void Ball::set_object_proection(AABB proect, bool is_player_platform, bool &is_was_collision)
+// {
+//     proection_ = proect;
+//     is_was_collision = false;
+//     
+//     mine_proection_.x_min = pos.x;
+//     mine_proection_.x_max = pos.x + ball_size_;
+//     mine_proection_.y_min = pos.y;
+//     mine_proection_.y_max = pos.y + ball_size_;
+//
+//     // if(!is_ball_in_field_) return;
+//
+//     if(mine_proection_.x_max >= proection_.x_min &&
+//         mine_proection_.y_max > proection_.y_min &&
+//         mine_proection_.y_max < proection_.y_max &&
+//         mine_proection_.y_min < proection_.y_max &&
+//         mine_proection_.y_min > proection_.y_min &&
+//         mine_proection_.x_min < proection_.x_min)
+//     {
+//         // from right
+//         direction.x *= -1;
+//         part_pos.x = direction.x;
+//         is_was_collision = true;
+//         // is_ball_in_field_ = false;
+//     }
+//
+//     if(mine_proection_.x_min <= proection_.x_max &&
+//         mine_proection_.y_max > proection_.y_min &&
+//         mine_proection_.y_max < proection_.y_max &&
+//         mine_proection_.y_min < proection_.y_max &&
+//         mine_proection_.y_min > proection_.y_min &&
+//         mine_proection_.x_max > proection_.x_max)
+//     {
+//         // from left
+//         direction.x *= -1;
+//         part_pos.x = direction.x;
+//         is_was_collision = true;
+//         // is_ball_in_field_ = false;
+//     }
+//
+//     if(mine_proection_.y_max >= proection_.y_min &&
+//         mine_proection_.x_min < proection_.x_max &&
+//         mine_proection_.x_min > proection_.x_min &&
+//         mine_proection_.x_max > proection_.x_min &&
+//         mine_proection_.x_max < proection_.x_max &&
+//         mine_proection_.y_min < proection_.y_min)
+//     {
+//         // from up
+//         direction.y *= -1;
+//         part_pos.y = direction.y;
+//         is_was_collision = true;
+//         // is_ball_in_field_ = false;
+//     }
+//
+//     if(mine_proection_.y_min <= proection_.y_max &&
+//         mine_proection_.x_min < proection_.x_max &&
+//         mine_proection_.x_min > proection_.x_min &&
+//         mine_proection_.x_max > proection_.x_min &&
+//         mine_proection_.x_max < proection_.x_max &&
+//         mine_proection_.y_max > proection_.y_max)
+//     {
+//         // from down
+//         direction.y *= -1;
+//         part_pos.y = direction.y;
+//         is_was_collision = true;
+//         // is_ball_in_field_ = false;
+//     }
+//
+//     if(!is_ball_in_field_) return;
+//     
+//     if(is_was_collision && is_player_platform)
+//     {
+//         direction.x = -0.6f +
+//             static_cast<float>(pos.x + ball_size_ / 2 - proection_.x_min) /
+//                 (proection_.x_max - proection_.x_min) * 1.2f;
+//
+//         if(direction.x > 0.6f) direction.x = 0.6f;
+//         if(direction.x < -0.6f) direction.x = -0.6f;
+//         
+//         direction.y = 1.0f - abs(direction.x);
+//         direction.y *= -1;
+//
+//         part_pos.x = direction.x;
+//         part_pos.y = direction.y;
+//     }
+// }
 
 void Ball::draw_ball() const
 {

@@ -16,7 +16,7 @@ public:
 
     Ball ball;
     Platform platform;
-    Block block[64];
+    Block block[count_bricks];
 
     void PreInit(int& width, int& height, bool& fullscreen) override
     {
@@ -74,7 +74,6 @@ public:
 
         for (int i = 0; i < count; i++)
         {
-            // if(!ball.is_game_end) block[i].is_show = true;
             block[i].show_block();
         }
         
@@ -144,10 +143,10 @@ public:
             
             platform.start();
             ball.start();
-            
-            for (auto block_ : block)
+
+            for (int i = 0; i < 64; i++)
             {
-                block_.start();
+                block[i].start();
             }
         }
     }
@@ -178,90 +177,128 @@ private:
     
     void calculate_near_element()
     {
-        // vector2_int box(ball.pos.x - ball.ball_size_ / 2,ball.pos.y - ball.ball_size_ / 2);
-
-        // int part = 0;
-        // float angle = sin(ball.direction.x);
-        //
-        // if(ball.direction.x < 0.25f && ball.direction.y)
+        // AABB element_proection;
+        // bool is_was_collision = false;
+        // int count_destroy = 3;
+        // for (int i = 0; i < count; i++)
         // {
+        //     block[i].show_block();
+        //
+        //     if(!block[i].is_show) continue;
         //     
+        //     constexpr int offset = 3;
+        //     element_proection.x_min = block[i].pos.x + offset;
+        //     element_proection.x_max = block[i].pos.x + block_size.x + offset;
+        //     element_proection.y_min = block[i].pos.y + offset;
+        //     element_proection.y_max = block[i].pos.y + block_size.y + offset;
+        //
+        //     ball.set_object_proection(element_proection, false, is_was_collision);
+        //     
+        //     if(is_was_collision)
+        //     {
+        //         block[i].destroy_block();
+        //         count_destroy--;
+        //
+        //         if(count_destroy <= 0) return;
+        //     }
         // }
-        proection element_proection;
-        bool is_was_collision = false;
+        //
+        // constexpr int offset = 10;
+        // element_proection.x_min = platform.pos.x + offset;
+        // element_proection.x_max = platform.pos.x + platform.size.x + offset;
+        // element_proection.y_min = platform.pos.y + offset;
+        // element_proection.y_max = platform.pos.y + platform.size.y + offset;
+        //
+        // ball.set_object_proection(element_proection, true, is_was_collision);
         
-        for (int i = 0; i < count; i++)
+        if (ball.pos.y + ball.ball_size_ > platform.pos.y + platform.size.y)
         {
-            block[i].show_block();
+            ball.is_game_end = true;
+        }
 
-            if(!block[i].is_show) continue;
-            
-            constexpr int offset = 3;
-            element_proection.x_min = block[i].pos.x + offset;
-            element_proection.x_max = block[i].pos.x + block_size.x + offset;
-            element_proection.y_min = block[i].pos.y + offset;
-            element_proection.y_max = block[i].pos.y + block_size.y + offset;
-
-            ball.set_object_proection(element_proection, false, is_was_collision);
-            
-            if(is_was_collision)
+        for (int i=0, j=0; i<count_bricks; i++)
+        {
+            if (!block[i].is_show)
             {
-                block[i].destroy_block();
-                return;
+                j++;
+            }
+
+            if (j == count_bricks)
+            {
+                //TODO: win game
+                std::cout << "WIN!";
             }
         }
 
+        if (intersects(ball.get_ball_AABB(), platform.get_ball_AABB())) {
+            
+            ball.direction.x = -0.6f +
+            static_cast<float>(ball.pos.x + ball.ball_size_ / 2 - platform.get_ball_AABB().x_min) /
+                (platform.get_ball_AABB().x_max - platform.get_ball_AABB().x_min) * 1.2f;
 
-        constexpr int offset = 10;
-        element_proection.x_min = platform.pos.x + offset;
-        element_proection.x_max = platform.pos.x + platform.size.x + offset;
-        element_proection.y_min = platform.pos.y + offset;
-        element_proection.y_max = platform.pos.y + platform.size.y + offset;
-
-        ball.set_object_proection(element_proection, true, is_was_collision);
+            if(ball.direction.x > 0.6f) ball.direction.x = 0.6f;
+            if(ball.direction.x < -0.6f) ball.direction.x = -0.6f;
         
-        // bool is_first_half = true;
-        // for (int i = 1; i < 3; i++)
-        // {
-        //     for (int j = 1; j < 5; j++)
-        //     {
-        //         const int mult = is_first_half ? 1 : -1;
-        //         if(j < 3) box.x += mult * ball.ball_size_;
-        //         else box.y += mult * ball.ball_size_;
-        //
-        //         vector2_int result= {0, 0};
-        //         
-        //         if(check_element(box, 0, result))
-        //         {
-        //             ball.set_object_border(result);
-        //             return;
-        //         }
-        //     }
-        //     
-        //     is_first_half = !is_first_half;
-        // }
-        //
-        // ball.set_object_border({0, 0});
+            ball.direction.y = 1.0f - abs(ball.direction.x);
+            ball.direction.y *= -1;
+
+            ball.part_pos.x = ball.direction.x;
+            ball.part_pos.y = ball.direction.y;
+
+            return;
+        }
+
+        for (int i = 0; i < count_bricks; i++) {
+
+            if (intersects(ball.get_ball_AABB(), block[i].get_ball_AABB()))
+            {
+                vector2_int point_right(ball.pos.x + ball.ball_size_, ball.pos.y + ball.ball_size_ / 2);
+                vector2_int point_left(ball.pos.x, ball.pos.y + ball.ball_size_ / 2);
+                vector2_int point_top(ball.pos.x + ball.ball_size_ / 2, ball.pos.y);
+                vector2_int point_bottom(ball.pos.x + ball.ball_size_ / 2, ball.pos.y + ball.ball_size_);
+                
+                if (block[i].is_show)
+                {
+                    if(contains(point_right, block[i].get_ball_AABB()) ||
+                        contains(point_left, block[i].get_ball_AABB()))
+                    {
+                        ball.direction.x *= -1;
+                    }
+
+                    if(contains(point_top, block[i].get_ball_AABB()) ||
+                        contains(point_bottom, block[i].get_ball_AABB()))
+                    {
+                        ball.direction.y *= -1;
+                    }
+                    
+                    ball.part_pos.x = ball.direction.x;
+                    ball.part_pos.y = ball.direction.y;
+
+                    block[i].destroy_block();
+                }
+            }
+        }
     }
-    
-    // bool check_element(vector2_int border, int index, vector2_int &out)
-    // {
-    //     if(border.x > platform.pos.x && border.x < platform.pos.x + platform.size.x &&
-    //         border.y > platform.pos.y && border.y < platform.pos.y + platform.size.y)
-    //     {
-    //         if(ball.pos.x > platform.pos.x + platform.size.x) out.x = platform.pos.x;
-    //         if(ball.pos.x - ball.ball_size_ < platform.pos.x) out.x = platform.pos.x;
-    //         if(ball.pos.y > platform.pos.y + platform.size.y) out.y = platform.pos.y + platform.size.y;
-    //         if(ball.pos.y - ball.ball_size_ < platform.pos.y) out.y = platform.pos.y;
-    //         return true;
-    //     }
-    //     
-    //     return false;
-    // }
+
+    bool intersects(AABB one, AABB two)
+    {
+        if(one.x_max < two.x_min || one.x_min > two.x_max) return false;
+        if(one.y_max < two.y_min || one.y_min > two.y_max) return false;
+        
+        return true;
+    }
+
+    bool contains(vector2_int point, AABB box)
+    {
+        if(point.x < box.x_min || point.x > box.x_max) return false;
+        if(point.y < box.y_min || point.y > box.y_max) return false;
+
+        return true;
+    }
 };
 
-#include <Windows.h>
-#define _SOLUTIONDIR R"($(SolutionDir))"
+//#include <Windows.h>
+//#define _SOLUTIONDIR R"($(SolutionDir))"
 
 int main(int argc, char* argv[])
 {

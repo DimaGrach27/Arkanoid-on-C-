@@ -13,7 +13,8 @@ public:
     void start();
     void show_block();
     void destroy_block();
+    AABB get_ball_AABB();
+    
 private:
-
     Sprite* block_sprite = nullptr;
 };

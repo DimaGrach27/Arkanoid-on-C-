@@ -6,6 +6,11 @@ void Block::start()
     is_show = true;
 }
 
+AABB Block::get_ball_AABB()
+{
+    return  {pos.x, pos.y, pos.x + block_size.x, pos.y + block_size.y};
+}
+
 void Block::destroy_block()
 {
     is_show = false;

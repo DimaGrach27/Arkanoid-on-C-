@@ -34,6 +34,11 @@ void Platform::Tick()
     animation_platform();
 }
 
+AABB Platform::get_ball_AABB()
+{
+    return  {pos.x, pos.y, pos.x + size.x, pos.y + size.y};
+}
+
 void Platform::set_move_direction(int value)
 {
     move_direction_ = value;
