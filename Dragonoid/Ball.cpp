@@ -6,15 +6,26 @@
 
 void Ball::restart()
 {
-
+    set_can_contact_platform(false);
 }
+
+void Ball::set_can_contact_platform(bool value)
+{
+    is_can_contact_platform_ = value;
+}
+
+bool Ball::is_can_contact_platform() const
+{
+    return is_can_contact_platform_;
+}
+
 
 void Ball::draw_line_to_mouse(vector2_int mouse_pos) const
 {
     vector2_int delta = mouse_pos;
     
-    delta.x -= pos.x - ball_size_ / 2;
-    delta.y -= pos.y - ball_size_ / 2;
+    delta.x -= pos.x - size / 2;
+    delta.y -= pos.y - size / 2;
 
     int line_size = delta.x * delta.x + delta.y * delta.y;
     line_size = sqrt(line_size); 
@@ -38,7 +49,7 @@ void Ball::draw_line_to_mouse(vector2_int mouse_pos) const
 
 AABB Ball::get_ball_AABB() const
 {
-    return  {pos.x, pos.y, pos.x + ball_size_, pos.y + ball_size_};
+    return  {pos.x, pos.y, pos.x + size, pos.y + size};
 }
 
 
@@ -46,37 +57,37 @@ void Ball::ball_on_platform_position_update(vector2_int platform_pos, vector2_in
 {
     // ball_pos_X_ = 0;
     // ball_pos_Y_ = 0;
-    pos.x = platform_pos.x + platform_size.x / 2 - ball_size_ / 2;
+    pos.x = platform_pos.x + platform_size.x / 2 - size / 2;
     pos.y = platform_pos.y;
-    pos.y -= platform_size.y / 2 + ball_size_ / 3;
+    pos.y -= platform_size.y / 2 + size / 3;
 }
 
 void Ball::set_dir_x(float dir_x)
 {
-    direction.x = part_pos.x = dir_x;
+    direction_.x = part_pos_.x = dir_x;
 }
 
 void Ball::set_dir_y(float dir_y)
 {
-    direction.y = part_pos.y = dir_y;
+    direction_.y = part_pos_.y = dir_y;
 }
 
 void Ball::invert_dir_y()
 {
-    direction.y *= -1;
-    part_pos.y = direction.y;
+    direction_.y *= -1;
+    part_pos_.y = direction_.y;
 }
 
 void Ball::invert_dir_x()
 {
-    direction.x *= -1;
-    part_pos.x = direction.x;
+    direction_.x *= -1;
+    part_pos_.x = direction_.x;
 }
 
 void Ball::draw_ball() const
 {
     drawSprite(ball_sprite_, pos.x, pos.y);
-    setSpriteSize(ball_sprite_, ball_size_, ball_size_);
+    setSpriteSize(ball_sprite_, size, size);
 }
 
 void Ball::init()
@@ -91,31 +102,31 @@ void Ball::init()
 
 void Ball::ball_move()
 {
-    part_pos.x += direction.x * ball_speed_;
+    part_pos_.x += direction_.x * ball_speed_;
         
-    if(part_pos.x > 1)
+    if(part_pos_.x > 1)
     {
-        part_pos.x--;
+        part_pos_.x--;
         pos.x += 1;
     }
 
-    if(part_pos.x < -1)
+    if(part_pos_.x < -1)
     {
-        part_pos.x++;
+        part_pos_.x++;
         pos.x -= 1;
     }
 
-    part_pos.y += direction.y * ball_speed_;
+    part_pos_.y += direction_.y * ball_speed_;
         
-    if(part_pos.y > 1)
+    if(part_pos_.y > 1)
     {
-        part_pos.y--;
+        part_pos_.y--;
         pos.y += 1;
     }
 
-    if(part_pos.y < -1)
+    if(part_pos_.y < -1)
     {
-        part_pos.y++;
+        part_pos_.y++;
         pos.y -= 1;
     }
     
@@ -126,21 +137,24 @@ void Ball::ball_move()
     if(pos.x <= 0)
     {
         set_dir_x(0.5f);
-        if(direction.y >= 0) set_dir_y(0.5f);
+        if(direction_.y >= 0) set_dir_y(0.5f);
         else set_dir_y(-0.5f);
+        is_can_contact_platform_ = true;
     }
 
-    if(pos.x >= screen_x - ball_size_)
+    if(pos.x >= screen_x - size)
     {
         set_dir_x(-0.5f);
-        if(direction.y >= 0) set_dir_y(0.5f);
+        if(direction_.y >= 0) set_dir_y(0.5f);
         else set_dir_y(-0.5f);
+        is_can_contact_platform_ = true;
     }
 
-    if(pos.y == 0 || pos.y == screen_y - ball_size_)
+    if(pos.y == 0 || pos.y == screen_y - size)
     {
-        direction.y *= -1;
-        part_pos.y = direction.y;
+        direction_.y *= -1;
+        part_pos_.y = direction_.y;
+        is_can_contact_platform_ = true;
     }
 }
 

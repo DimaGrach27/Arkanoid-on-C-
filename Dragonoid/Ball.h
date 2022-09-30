@@ -6,7 +6,7 @@ class Ball
 {
     
 public:
-    const int ball_size_ = 30;
+    const int size = 30;
 
     vector2_int pos {0,0};
     
@@ -20,19 +20,19 @@ public:
     void set_dir_y(float dir_y);
     void invert_dir_y();
     void invert_dir_x();
-    
+    void set_can_contact_platform(bool value);
+
+    bool is_can_contact_platform() const;
     AABB get_ball_AABB() const;
 
 private:
+    bool is_can_contact_platform_ = false;
     constexpr static int count_balls_ = 100;
     
     const float ball_speed_ = 3;
-    
-    AABB proection_ {0,0, 0,0};
-    AABB mine_proection_ {0,0, 0,0};
 
-    vector2_float direction {0,0};
-    vector2_float part_pos {0,0};
+    vector2_float direction_ {0,0};
+    vector2_float part_pos_ {0,0};
 
     Sprite* ball_sprite_ = nullptr;
     Sprite* ball_small_sprite_[count_balls_] = {};

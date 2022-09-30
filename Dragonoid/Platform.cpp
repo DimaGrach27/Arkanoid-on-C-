@@ -1,9 +1,8 @@
 ﻿#include "Platform.h"
 
-#include "Constans.h"
 #include "Helpers.h"
 
-void Platform::Init()
+void Platform::init()
 {
     init_platform_sprites(count_platform_sprites);
     tick_count_ = getTickCount();
@@ -18,7 +17,17 @@ void Platform::Init()
     pos.x = screen_x / 2 - size.x / 2;
 }
 
-void Platform::start()
+vector2_int Platform::get_size() const
+{
+    return size;
+}
+
+vector2_int Platform::get_pos() const
+{
+    return pos;
+}
+
+void Platform::restart()
 {
     int screen_x;
     int screen_y;
@@ -28,48 +37,7 @@ void Platform::start()
     pos.x = screen_x / 2 - size.x / 2;
 }
 
-void Platform::Tick()
-{
-    move_platform();
-    animation_platform();
-}
-
-AABB Platform::get_ball_AABB() const
-{
-    return  {pos.x, pos.y, pos.x + size.x, pos.y + size.y};
-}
-
-void Platform::set_move_direction(int value)
-{
-    move_direction_ = value;
-}
-
-void Platform::animation_platform()
-{
-    if(getTickCount() - tick_count_ > 150)
-    {
-        tick_count_ = getTickCount();
-        tick_++;
-    }
-
-    if(tick_ >= count_platform_sprites)
-        tick_ = 0;
-        
-    setSpriteSize(animation_sprite_platform_[tick_], size.x, size.y);
-    drawSprite(animation_sprite_platform_[tick_], pos.x, pos.y);
-    
-}
-
-void Platform::init_platform_sprites(int count_sprites)
-{
-    for (int i = 0; i < count_sprites; i++)
-    {
-        const int number = 50 + i;
-        animation_sprite_platform_[i] = createSprite(Helpers::get_path_to_sprite(number).c_str());
-    }
-}
-
-void Platform::move_platform()
+void Platform::move()
 {
     const int newPosition = pos.x + move_direction_ * platform_speed_;
 
@@ -83,4 +51,36 @@ void Platform::move_platform()
     }
 }
 
+void Platform::draw()
+{
+    if(getTickCount() - tick_count_ > 150)
+    {
+        tick_count_ = getTickCount();
+        tick_++;
+    }
 
+    if(tick_ >= count_platform_sprites)
+        tick_ = 0;
+        
+    setSpriteSize(animation_sprite_platform_[tick_], size.x, size.y);
+    drawSprite(animation_sprite_platform_[tick_], pos.x, pos.y);
+}
+
+AABB Platform::get_ball_AABB() const
+{
+    return  {pos.x, pos.y, pos.x + size.x, pos.y + size.y};
+}
+
+void Platform::set_move_direction(int value)
+{
+    move_direction_ = value;
+}
+
+void Platform::init_platform_sprites(int count_sprites)
+{
+    for (int i = 0; i < count_sprites; i++)
+    {
+        const int number = 50 + i;
+        animation_sprite_platform_[i] = createSprite(Helpers::get_path_to_sprite(number).c_str());
+    }
+}

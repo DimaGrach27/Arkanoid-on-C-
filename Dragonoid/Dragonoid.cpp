@@ -28,7 +28,7 @@ public:
     bool Init() override
     {
         back_ground_.init();
-        platform_.Init();
+        platform_.init();
         ball_.init();
         safe_zone_.init();
         
@@ -64,7 +64,7 @@ public:
 
         if(is_ball_on_platform_)
         {
-            ball_.ball_on_platform_position_update(platform_.pos, platform_.size);
+            ball_.ball_on_platform_position_update(platform_.get_pos(), platform_.get_size());
             ball_.draw_line_to_mouse(mouse_pos);
         }
         else
@@ -78,7 +78,8 @@ public:
             block_[i].show_block();
         }
         
-        platform_.Tick();
+        platform_.move();
+        platform_.draw();
         safe_zone_.draw();
         ball_.draw_ball();
 
@@ -99,14 +100,15 @@ public:
     {
         if(button == FRMouseButton::LEFT && isReleased)
         {
-            const float vec_dir_x = mouse_pos.x - ball_.pos.x;
-            const float vec_dir_y = mouse_pos.y - ball_.pos.y;
+            const vector2_float vec_dir(
+                mouse_pos.x - ball_.pos.x + ball_.size / 2,
+                mouse_pos.y - ball_.pos.y + ball_.size / 2);
             
-            const float vec_mag_ = sqrt(vec_dir_x * vec_dir_x + vec_dir_y * vec_dir_y);
+            const float vec_mag_ = sqrt(vec_dir.x * vec_dir.x + vec_dir.y * vec_dir.y);
             const float vec_inv_mag_ = 1 / vec_mag_;
             
-            ball_.set_dir_x(vec_dir_x * vec_inv_mag_);
-            ball_.set_dir_x(vec_dir_y * vec_inv_mag_);
+            ball_.set_dir_x(vec_dir.x * vec_inv_mag_);
+            ball_.set_dir_y(vec_dir.y * vec_inv_mag_);
             
             is_ball_on_platform_ = false;
         }
@@ -161,7 +163,7 @@ private:
             is_game_end = false;
             is_ball_on_platform_ = true;
             
-            platform_.start();
+            platform_.restart();
             ball_.restart();
             safe_zone_.restart();
 
@@ -174,7 +176,7 @@ private:
     
     void calculate_near_element()
     {
-        if (ball_.pos.y + ball_.ball_size_ == bottom_edge)
+        if (ball_.pos.y + ball_.size == bottom_edge)
         {
             if(safe_zone_.isAlive())
             {
@@ -205,10 +207,11 @@ private:
             }
         }
 
-        if (intersects(ball_.get_ball_AABB(), platform_.get_ball_AABB())) {
+        if (ball_.is_can_contact_platform() &&
+            intersects(ball_.get_ball_AABB(), platform_.get_ball_AABB())) {
             
             float direction = -0.6f +
-            static_cast<float>(ball_.pos.x + ball_.ball_size_ / 2 - platform_.get_ball_AABB().x_min) /
+            static_cast<float>(ball_.pos.x + ball_.size / 2 - platform_.get_ball_AABB().x_min) /
                 (platform_.get_ball_AABB().x_max - platform_.get_ball_AABB().x_min) * 1.2f;
 
             if(direction > 0.6f) direction= 0.6f;
@@ -227,10 +230,10 @@ private:
 
             if (intersects(ball_.get_ball_AABB(), block_[i].get_ball_AABB()))
             {
-                vector2_int point_right(ball_.pos.x + ball_.ball_size_, ball_.pos.y + ball_.ball_size_ / 2);
-                vector2_int point_left(ball_.pos.x, ball_.pos.y + ball_.ball_size_ / 2);
-                vector2_int point_top(ball_.pos.x + ball_.ball_size_ / 2, ball_.pos.y);
-                vector2_int point_bottom(ball_.pos.x + ball_.ball_size_ / 2, ball_.pos.y + ball_.ball_size_);
+                vector2_int point_right(ball_.pos.x + ball_.size, ball_.pos.y + ball_.size / 2);
+                vector2_int point_left(ball_.pos.x, ball_.pos.y + ball_.size / 2);
+                vector2_int point_top(ball_.pos.x + ball_.size / 2, ball_.pos.y);
+                vector2_int point_bottom(ball_.pos.x + ball_.size / 2, ball_.pos.y + ball_.size);
                 
                 if (block_[i].is_show)
                 {
@@ -247,6 +250,7 @@ private:
                     }
           
                     block_[i].destroy_block();
+                    ball_.set_can_contact_platform(true);
                 }
             }
         }
