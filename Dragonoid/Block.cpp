@@ -1,7 +1,7 @@
 ﻿#include "Block.h"
 #include "Constans.h"
 
-void Block::start()
+void Block::restart()
 {
     is_show = true;
 }

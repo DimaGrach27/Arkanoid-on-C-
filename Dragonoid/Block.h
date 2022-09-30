@@ -10,7 +10,7 @@ public:
     vector2_int pos {0,0};
 
     void init_block(int sprite_num, vector2_int position);
-    void start();
+    void restart();
     void show_block();
     void destroy_block();
     AABB get_ball_AABB();
