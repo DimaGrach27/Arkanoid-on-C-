@@ -13,18 +13,22 @@ public:
     void init();
     void restart();
     void ball_move();
-    void draw_ball() const;
     void destroy_ball();
-    void draw_line_to_mouse(vector2_int mouse_pos) const;
     void ball_on_platform_position_update(vector2_int platform_pos, vector2_int platform_size);
     void set_dir_x(float dir_x);
     void set_dir_y(float dir_y);
     void invert_dir_y();
     void invert_dir_x();
     void set_can_contact_platform(bool value);
+    void set_is_was_init(bool value);
+    
+    void draw_ball() const;
+    void draw_line_to_mouse(vector2_int mouse_pos) const;
 
-    bool is_can_contact_platform() const;
-    bool is_alive() const;
+    bool get_is_can_contact_platform() const;
+    bool get_is_was_init() const;
+    bool get_is_alive() const;
+    
     AABB get_ball_AABB() const;
     AABB get_right_side() const;
     AABB get_left_side() const;
@@ -34,6 +38,7 @@ public:
 private:
     bool is_can_contact_platform_ = false;
     bool is_alive_ = true;
+    bool is_was_init_ = false;
     
     constexpr static int count_balls_ = 100;
     

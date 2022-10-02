@@ -6,6 +6,7 @@
 
 void Ball::restart()
 {
+    is_was_init_ = false;
     is_alive_ = true;
     set_can_contact_platform(false);
 }
@@ -15,11 +16,22 @@ void Ball::set_can_contact_platform(bool value)
     is_can_contact_platform_ = value;
 }
 
-bool Ball::is_can_contact_platform() const
+void Ball::set_is_was_init(bool value)
+{
+    is_was_init_ = value;
+}
+
+bool Ball::get_is_can_contact_platform() const
 {
     return is_can_contact_platform_;
 }
-bool Ball::is_alive() const
+
+bool Ball::get_is_was_init() const
+{
+    return is_was_init_;
+}
+
+bool Ball::get_is_alive() const
 {
     return is_alive_;
 }
@@ -27,8 +39,8 @@ bool Ball::is_alive() const
 void Ball::destroy_ball()
 {
     is_alive_ = false;
+    is_was_init_ = false;
 }
-
 
 void Ball::draw_line_to_mouse(vector2_int mouse_pos) const
 {

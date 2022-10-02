@@ -31,9 +31,11 @@ public:
         back_ground_.init();
         platform_.init();
         ball_1_.init();
-        // ball_2_.init();
-        // ball_3_.init();
+        ball_2_.init();
+        ball_3_.init();
         safe_zone_.init();
+
+        ball_1_.set_is_was_init(true);
         
         for (int i = 0; i < 8; i++)
         {
@@ -83,6 +85,8 @@ public:
 
     bool Tick() override
     {
+        init_balls();
+        
         if(prev_time_ < helpers_.play_timer())
         {
             timer_tick();
@@ -99,13 +103,16 @@ public:
         }
         else
         {
-            ball_1_.ball_move();
+            move_ball(&ball_1_);
+            move_ball(&ball_2_);
+            move_ball(&ball_3_);
+            // ball_1_.ball_move();
             // ball_2_.ball_move();
             // ball_3_.ball_move();
             
             calculate_near_element(&ball_1_);
-            // calculate_near_element(&ball_2_);
-            // calculate_near_element(&ball_3_);
+            calculate_near_element(&ball_2_);
+            calculate_near_element(&ball_3_);
         }
 
         for (int i = 0; i < count_; i++)
@@ -116,8 +123,11 @@ public:
         platform_.move();
         platform_.draw();
         safe_zone_.draw();
-        
-        ball_1_.draw_ball();
+
+        draw_ball(&ball_1_);
+        draw_ball(&ball_2_);
+        draw_ball(&ball_3_);
+        // ball_1_.draw_ball();
         // ball_2_.draw_ball();
         // ball_3_.draw_ball();
         
@@ -136,6 +146,8 @@ public:
 
     void onMouseButtonClick(FRMouseButton button, bool isReleased) override
     {
+        if(!is_ball_on_platform_) return;
+        
         if(button == FRMouseButton::LEFT && isReleased)
         {
             const vector2_float vec_dir(
@@ -146,10 +158,14 @@ public:
             const float vec_inv_mag_ = 1 / vec_mag_;
 
             start_direction_shot_ = {vec_dir.x * vec_inv_mag_, vec_dir.y * vec_inv_mag_};
+            shot_count_ = 3;
+            init_balls();
             
-            ball_1_.set_dir_x(vec_dir.x * vec_inv_mag_);
-            ball_1_.set_dir_y(vec_dir.y * vec_inv_mag_);
-            
+            // ball_1_.set_dir_x(vec_dir.x * vec_inv_mag_);
+            // ball_1_.set_dir_y(vec_dir.y * vec_inv_mag_);
+            //
+            // ball_1_.set_is_was_init(true);
+            //
             is_ball_on_platform_ = false;
         }
     }
@@ -183,8 +199,8 @@ public:
 private:
 
     Ball ball_1_;
-    // Ball ball_2_;
-    // Ball ball_3_;
+    Ball ball_2_;
+    Ball ball_3_;
     
     Platform platform_;
     Block block_[count_bricks];
@@ -201,6 +217,8 @@ private:
     int count_ = 0;
     int bottom_edge_ = 0;
     int prev_time_ = 0;
+    int prev_time_shot_ = 0;
+    int shot_count_ = 0;
 
     void start_game()
     {
@@ -211,8 +229,9 @@ private:
             
             platform_.restart();
             ball_1_.restart();
-            // ball_2_.restart();
-            // ball_3_.restart();
+            ball_1_.set_is_was_init(true);
+            ball_2_.restart();
+            ball_3_.restart();
             safe_zone_.restart();
 
             for (int i = 0; i < 64; i++)
@@ -229,9 +248,23 @@ private:
             block_[i].transparent_timer_tick();
         }
     }
+
+    static void draw_ball(const Ball *ball)
+    {
+        if(!ball->get_is_was_init()) return;
+        ball->draw_ball();
+    }
+
+    static void move_ball(Ball *ball)
+    {
+        if(!ball->get_is_was_init()) return;
+        ball->ball_move();
+    }
     
     void calculate_near_element(Ball *ball)
     {
+        if(!ball->get_is_was_init()) return;
+        
         if (ball->pos.y + ball->size == bottom_edge_)
         {
             if(safe_zone_.isAlive())
@@ -267,7 +300,7 @@ private:
             }
         }
 
-        if (ball->is_can_contact_platform() &&
+        if (ball->get_is_can_contact_platform() &&
             intersects(ball->get_ball_AABB(), platform_.get_ball_AABB()))
         {
             
@@ -321,7 +354,7 @@ private:
 
     bool is_all_ball_destroyed() const
     {
-        return !ball_1_.is_alive()/* && !ball_2_.is_alive() && !ball_3_.is_alive()*/;
+        return !ball_1_.get_is_alive() && !ball_2_.get_is_alive() && !ball_3_.get_is_alive();
     }
 
     static bool intersects(AABB one, AABB two)
@@ -354,6 +387,43 @@ private:
         if(point.y < box.y_min || point.y > box.y_max) return false;
         
         return true;
+    }
+
+    void init_balls()
+    {
+        if(shot_count_ <= 0) return;
+        
+        const int current_time = helpers_.play_timer();
+        if(current_time - prev_time_shot_ > 0)
+        {
+            prev_time_shot_ = helpers_.play_timer();
+            
+            switch (shot_count_)
+            {
+            case 3:
+                shot_ball(&ball_1_);
+                break;
+
+            case 2:
+                shot_ball(&ball_2_);
+                break;
+            case 1:
+                shot_ball(&ball_3_);
+                break;
+            default: break;
+            }
+
+            shot_count_--;
+        }
+    }
+
+    void shot_ball(Ball * ball) const
+    {
+        ball->ball_on_platform_position_update(platform_.get_pos(), platform_.get_size());
+        ball->set_dir_x(start_direction_shot_.x);
+        ball->set_dir_y(start_direction_shot_.y);
+
+        ball->set_is_was_init(true);
     }
 };
 
