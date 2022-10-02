@@ -10,7 +10,12 @@ using std::endl;
 class Helpers
 {
 public:
-    
+    Helpers()
+    {
+        prev_time_ = 0;
+        start_time_ = time(nullptr);
+    }
+
     static string get_path_to_sprite(int number_sprite)
     {
         const string data_folder = "F:/Dima/Development/C++ projects/Dragonoid/Dragonoid/data/";
@@ -20,24 +25,26 @@ public:
         return path;
     }
 
-    void fps()
+    int play_timer()
     {
-        const int current_tick = static_cast<int>(getTickCount());
-        const time_t current_time = time(0);
+        const time_t current_time = time(nullptr);
+        int time_less = prev_time_ - start_time_;
     
-        if(current_time - start_time_ > 0)
+        if(current_time - prev_time_ > 0)
         {
-            start_time_ = time(0);
+            prev_time_ = time(nullptr);
     
-            cout << "fps: " << current_tick - prev_tick_ << endl;
-            prev_tick_ = getTickCount();
+            // cout << "Play time: " << current_time - start_time_ << "(s)" << endl;
+
+            time_less = prev_time_ - start_time_;
         }
+
+        return time_less;
     }
 
 private:
-    int prev_tick_ = 0;
-
-    time_t start_time_ = 0;
+    time_t prev_time_ = 0;
+    time_t start_time_ = time(nullptr);
 };
 
 struct vector2_int

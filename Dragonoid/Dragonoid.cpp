@@ -13,6 +13,7 @@
 using std::string;
 
 class Drogonoid final : public Framework {
+    
 
 public:
 
@@ -21,12 +22,13 @@ public:
         width = 800;
         height = 600;
 
-        bottom_edge = height;
+        bottom_edge_ = height;
         fullscreen = false;
     }
 
     bool Init() override
     {
+
         back_ground_.init();
         platform_.init();
         balls_.init();
@@ -45,8 +47,28 @@ public:
             {
                 offset = j > 0 ? 8 : 0;
                 spawn_pos.x = 12 + j * block_size.x + j * offset;
-                block_[count].init_block(13, spawn_pos);
-                count++;
+                
+                if(i == 2 && (j == 2 || j == 5 || j == 0 || j == 7))
+                {
+                    block_[count_].init_block(11, spawn_pos);
+                    block_[count_].set_is_transparent_ability(true);
+                }
+                else if(i == 4 && (j == 2 || j == 5))
+                {
+                    block_[count_].init_block(11, spawn_pos);
+                    block_[count_].set_is_transparent_ability(true);
+                }
+                else if(i == 6 && (j == 3 || j == 4))
+                {
+                    block_[count_].init_block(11, spawn_pos);
+                    block_[count_].set_is_transparent_ability(true);
+                }
+                else
+                {
+                    block_[count_].init_block(13, spawn_pos);
+                }
+               
+                count_++;
             }
         }
 
@@ -60,6 +82,13 @@ public:
 
     bool Tick() override
     {
+        if(prev_time_ < helpers_.play_timer())
+        {
+            timer_tick();
+            prev_time_ = helpers_.play_timer();
+            cout << "Play time: " << prev_time_<< "(s)" << endl;
+        }
+        
         back_ground_.draw();
 
         if(is_ball_on_platform_)
@@ -73,7 +102,7 @@ public:
             calculate_near_element();
         }
 
-        for (int i = 0; i < count; i++)
+        for (int i = 0; i < count_; i++)
         {
             block_[i].show_block();
         }
@@ -149,6 +178,7 @@ private:
     Block block_[count_bricks];
     SafeZone safe_zone_;
     BackGround back_ground_;
+    Helpers helpers_;
     
     vector2_int mouse_pos_ {0,0};
     vector2_float start_direction_shot_ {0,0};
@@ -156,8 +186,9 @@ private:
     bool is_ball_on_platform_ = true;
     bool is_game_end_ = false;
     
-    int count = 0;
-    int bottom_edge = 0;
+    int count_ = 0;
+    int bottom_edge_ = 0;
+    int prev_time_ = 0;
 
     void start_game()
     {
@@ -176,10 +207,18 @@ private:
             }
         }
     }
+
+    void timer_tick()
+    {
+        for (int i = 0; i < count_bricks; i++)
+        {
+            block_[i].transparent_timer_tick();
+        }
+    }
     
     void calculate_near_element()
     {
-        if (balls_.pos.y + balls_.size == bottom_edge)
+        if (balls_.pos.y + balls_.size == bottom_edge_)
         {
             if(safe_zone_.isAlive())
             {
@@ -188,22 +227,20 @@ private:
             }
             
             is_game_end_ = true;
-            //TODO: lose game
             start_game();
             std::cout << "LOSE!" << std::endl;
             return;
         }
 
-        for (int i = 0, j = 0; i<count_bricks; i++)
+        for (int i = 0, j = 0; i < count_bricks; i++)
         {
-            if (!block_[i].is_show)
+            if (!block_[i].get_is_show())
             {
                 j++;
             }
 
             if (j == count_bricks)
             {
-                //TODO: win game
                 start_game();
                 std::cout << "WIN!" << std::endl;
                 return;
@@ -231,14 +268,15 @@ private:
 
         for (int i = 0; i < count_bricks; i++) {
 
-            if (intersects(balls_.get_ball_AABB(), block_[i].get_ball_AABB()))
+            if (!block_[i].get_is_transparent_now() &&
+                intersects(balls_.get_ball_AABB(), block_[i].get_ball_AABB()))
             {
-                vector2_int point_right(balls_.pos.x + balls_.size, balls_.pos.y + balls_.size / 2);
-                vector2_int point_left(balls_.pos.x, balls_.pos.y + balls_.size / 2);
-                vector2_int point_top(balls_.pos.x + balls_.size / 2, balls_.pos.y);
-                vector2_int point_bottom(balls_.pos.x + balls_.size / 2, balls_.pos.y + balls_.size);
+                const vector2_int point_right(balls_.pos.x + balls_.size, balls_.pos.y + balls_.size / 2);
+                const vector2_int point_left(balls_.pos.x, balls_.pos.y + balls_.size / 2);
+                const vector2_int point_top(balls_.pos.x + balls_.size / 2, balls_.pos.y);
+                const vector2_int point_bottom(balls_.pos.x + balls_.size / 2, balls_.pos.y + balls_.size);
                 
-                if (block_[i].is_show)
+                if (block_[i].get_is_show())
                 {
                     if(contains(point_right, block_[i].get_ball_AABB()) ||
                         contains(point_left, block_[i].get_ball_AABB()))
@@ -280,5 +318,4 @@ private:
 int main(int argc, char* argv[])
 {
     return run(new Drogonoid);
-    
 }

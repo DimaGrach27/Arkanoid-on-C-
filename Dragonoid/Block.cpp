@@ -1,32 +1,82 @@
 ﻿#include "Block.h"
+
+#include "BackGround.h"
 #include "Constans.h"
 
 void Block::restart()
 {
-    is_show = true;
+    is_show_ = true;
 }
 
-AABB Block::get_ball_AABB()
+AABB Block::get_ball_AABB() const
 {
-    return  {pos.x, pos.y, pos.x + block_size.x, pos.y + block_size.y};
+    return  {pos_.x, pos_.y, pos_.x + block_size.x, pos_.y + block_size.y};
+}
+
+bool Block::get_is_show() const
+{
+    return is_show_;
+}
+
+bool Block::get_is_transparent_ability() const
+{
+    return is_transparent_ability_;
+}
+
+bool Block::get_is_transparent_now() const
+{
+    return is_transparent_now_;
+}
+
+void Block::set_is_transparent_ability(bool value)
+{
+    is_transparent_ability_ = value;
 }
 
 void Block::destroy_block()
 {
-    is_show = false;
+    is_show_ = false;
 }
 
 void Block::init_block(int sprite_num, vector2_int position)
 {
-    pos = position;
-    block_sprite = createSprite(Helpers::get_path_to_sprite(sprite_num).c_str());
+    pos_ = position;
+    block_sprite_ = createSprite(Helpers::get_path_to_sprite(sprite_num).c_str());
+    block_transparent_sprite_ = createSprite(Helpers::get_path_to_sprite(66).c_str());
 }
 
-void Block::show_block()
+void Block::show_block() const
 {
-    if(!is_show) return;
+    if(!is_show_) return;
 
-    drawSprite(block_sprite, pos.x, pos.y);
-    setSpriteSize(block_sprite, block_size.x, block_size.y);
+    Sprite* show_sprite = is_transparent_now_ ? block_transparent_sprite_ : block_sprite_;
+    
+    drawSprite(show_sprite, pos_.x, pos_.y);
+    setSpriteSize(show_sprite, block_size.x, block_size.y);
 }
+
+void Block::transparent_timer_tick()
+{
+    if(!is_transparent_ability_) return;
+
+    current_sec_++;
+
+    if(is_transparent_now_)
+    {
+        if(current_sec_ >= 3)
+        {
+            is_transparent_now_  = false;
+            current_sec_ = 0;
+        }
+    }
+    else
+    {
+        if(current_sec_ >= 10)
+        {
+            is_transparent_now_ = true;
+            current_sec_ = 0;
+        }
+    }
+}
+
 
