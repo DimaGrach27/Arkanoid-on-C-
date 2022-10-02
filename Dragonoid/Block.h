@@ -5,7 +5,8 @@
 class Block
 {
 public:
-    void init_block(int sprite_num, vector2_int position);
+    Block(int sprite_num, vector2_int position, bool is_transparent);
+    
     void restart();
     void show_block() const;
     void destroy_block();
@@ -13,7 +14,6 @@ public:
     bool get_is_show() const;
     bool get_is_transparent_ability() const;
     bool get_is_transparent_now() const;
-    void set_is_transparent_ability(bool value);
     void transparent_timer_tick();
     
 private:

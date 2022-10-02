@@ -5,7 +5,8 @@
 class BackGround
 {
 public:
-    void init();
+    BackGround();
+    
     void draw() const;
     
 private:

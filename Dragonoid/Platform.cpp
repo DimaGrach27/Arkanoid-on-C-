@@ -2,7 +2,7 @@
 
 #include "Helpers.h"
 
-void Platform::init()
+Platform::Platform()
 {
     init_platform_sprites(count_platform_sprites);
     tick_count_ = getTickCount();

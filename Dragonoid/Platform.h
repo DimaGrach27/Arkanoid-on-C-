@@ -6,7 +6,8 @@ class Platform
 {
     
 public:
-    void init();
+    Platform();
+    
     void move();
     void draw();
     void restart();

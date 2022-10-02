@@ -2,7 +2,7 @@
 
 #include "Helpers.h"
 
-void SafeZone::init()
+SafeZone::SafeZone()
 {
     save_zone_sprite = createSprite(Helpers::get_path_to_sprite(10).c_str());
 

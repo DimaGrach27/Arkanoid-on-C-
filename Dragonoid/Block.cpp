@@ -3,6 +3,17 @@
 #include "BackGround.h"
 #include "Constans.h"
 
+Block::Block(int sprite_num, vector2_int position, bool is_transparent)
+{
+    pos_ = position;
+    is_transparent_ability_ = is_transparent;
+    block_sprite_ = createSprite(Helpers::get_path_to_sprite(sprite_num).c_str());
+    
+    if(!is_transparent) return;
+    
+    block_transparent_sprite_ = createSprite(Helpers::get_path_to_sprite(66).c_str());
+}
+
 void Block::restart()
 {
     is_show_ = true;
@@ -28,21 +39,9 @@ bool Block::get_is_transparent_now() const
     return is_transparent_now_;
 }
 
-void Block::set_is_transparent_ability(bool value)
-{
-    is_transparent_ability_ = value;
-}
-
 void Block::destroy_block()
 {
     is_show_ = false;
-}
-
-void Block::init_block(int sprite_num, vector2_int position)
-{
-    pos_ = position;
-    block_sprite_ = createSprite(Helpers::get_path_to_sprite(sprite_num).c_str());
-    block_transparent_sprite_ = createSprite(Helpers::get_path_to_sprite(66).c_str());
 }
 
 void Block::show_block() const

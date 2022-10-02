@@ -1,8 +1,3 @@
-#include <chrono>
-#include <iostream>
-#include <random>
-#include <string>
-
 #include "Ability.h"
 #include "BackGround.h"
 #include "Framework.h"
@@ -35,19 +30,11 @@ public:
         balls_[0] = new Ball;
         balls_[1] = new Ball;
         balls_[2] = new Ball;
-
-        // for (const auto ball : balls_)
-        // {
-        //     ball->init();
-        // }
-        back_ground_.init();
-        platform_.init();
-        // ball_1_.init();
-        // ball_2_.init();
-        // ball_3_.init();
-        safe_zone_.init();
-
-        // ball_1_.set_is_was_init(true);
+        platform_ = new Platform;
+        safe_zone_ = new SafeZone;
+        back_ground_ = new BackGround;
+        helpers_ = new Helpers;
+        
         balls_[0]->set_is_was_init(true);
         
         for (int i = 0; i < 8; i++)
@@ -66,22 +53,19 @@ public:
                 
                 if(i == 2 && (j == 2 || j == 5 || j == 0 || j == 7))
                 {
-                    block_[count_].init_block(11, spawn_pos);
-                    block_[count_].set_is_transparent_ability(true);
+                    block_[count_] = new Block(11, spawn_pos, true);
                 }
                 else if(i == 4 && (j == 2 || j == 5))
                 {
-                    block_[count_].init_block(11, spawn_pos);
-                    block_[count_].set_is_transparent_ability(true);
+                    block_[count_] = new Block(11, spawn_pos, true);
                 }
                 else if(i == 6 && (j == 3 || j == 4))
                 {
-                    block_[count_].init_block(11, spawn_pos);
-                    block_[count_].set_is_transparent_ability(true);
+                    block_[count_] = new Block(11, spawn_pos, true);
                 }
                 else
                 {
-                    block_[count_].init_block(13, spawn_pos);
+                    block_[count_] = new Block(13, spawn_pos, false);
                 }
                
                 count_++;
@@ -100,21 +84,19 @@ public:
     {
         init_balls();
         
-        if(prev_time_ < helpers_.play_timer())
+        if(prev_time_ < helpers_->play_timer())
         {
             timer_tick();
-            prev_time_ = helpers_.play_timer();
+            prev_time_ = helpers_->play_timer();
             cout << "Play time: " << prev_time_<< "(s)" << endl;
         }
         
-        back_ground_.draw();
+        back_ground_->draw();
 
         if(is_ball_on_platform_)
         {
-            balls_[0]->ball_on_platform_position_update(platform_.get_pos(), platform_.get_size());
+            balls_[0]->ball_on_platform_position_update(platform_->get_pos(), platform_->get_size());
             balls_[0]->draw_line_to_mouse(mouse_pos_);
-            // ball_1_.ball_on_platform_position_update(platform_.get_pos(), platform_.get_size());
-            // ball_1_.draw_line_to_mouse(mouse_pos_);
         }
         else
         {
@@ -122,41 +104,30 @@ public:
             {
                 move_ball(ball);
             }
-            // move_ball(&ball_1_);
-            // move_ball(&ball_2_);
-            // move_ball(&ball_3_);
 
             for (const auto ball : balls_)
             {
                 calculate_near_element(ball);
             }
-            
-            // calculate_near_element(&ball_1_);
-            // calculate_near_element(&ball_2_);
-            // calculate_near_element(&ball_3_);
         }
 
         for (int i = 0; i < count_; i++)
         {
-            block_[i].show_block();
+            block_[i]->show_block();
         }
         
         ability_->move();
         
-        platform_.move();
-        platform_.draw();
-        safe_zone_.draw();
+        platform_->move();
+        platform_->draw();
+        safe_zone_->draw();
         ability_->draw();
 
         for (const auto ball : balls_)
         {
             draw_ball(ball);
         }
-        
-        // draw_ball(&ball_1_);
-        // draw_ball(&ball_2_);
-        // draw_ball(&ball_3_);
-        
+
         start_game();
         
         return false;
@@ -187,11 +158,6 @@ public:
             shot_count_ = 3;
             init_balls();
             
-            // ball_1_.set_dir_x(vec_dir.x * vec_inv_mag_);
-            // ball_1_.set_dir_y(vec_dir.y * vec_inv_mag_);
-            //
-            // ball_1_.set_is_was_init(true);
-            //
             is_ball_on_platform_ = false;
         }
     }
@@ -200,12 +166,12 @@ public:
     {
         if(k == FRKey::LEFT)
         {
-            platform_.set_move_direction(-1);
+            platform_->set_move_direction(-1);
         }
 
         if(k == FRKey::RIGHT)
         {
-            platform_.set_move_direction(1);
+            platform_->set_move_direction(1);
         }
     }
 
@@ -213,7 +179,7 @@ public:
     {
         if(k == FRKey::LEFT || k == FRKey::RIGHT)
         {
-            platform_.set_move_direction(0);
+            platform_->set_move_direction(0);
         }
     }
 	
@@ -226,15 +192,11 @@ private:
 
     Ability* ability_ = nullptr;
     Ball* balls_[3] = {};
-    // Ball ball_1_;
-    // Ball ball_2_;
-    // Ball ball_3_;
-    
-    Platform platform_;
-    Block block_[count_bricks];
-    SafeZone safe_zone_;
-    BackGround back_ground_;
-    Helpers helpers_;
+    Block* block_[count_bricks] = {};
+    Platform* platform_ = nullptr;
+    SafeZone* safe_zone_ = nullptr;
+    BackGround* back_ground_ = nullptr;
+    Helpers* helpers_ = nullptr;
     
     vector2_int mouse_pos_ {0,0};
     vector2_float start_direction_shot_ {0,0};
@@ -255,35 +217,33 @@ private:
             is_game_end_ = false;
             is_ball_on_platform_ = true;
             
-            platform_.restart();
-            // ball_1_.restart();
+            platform_->restart();
             for (const auto ball : balls_)
             {
                 ball->restart();
             }
             balls_[0]->set_is_was_init(true);
-            // ball_2_.restart();
-            // ball_3_.restart();
-            safe_zone_.restart();
 
-            for (int i = 0; i < 64; i++)
+            safe_zone_->restart();
+
+            for (const auto& block : block_)
             {
-                block_[i].restart();
+                block->restart();
             }
         }
     }
 
     void timer_tick()
     {
-        for (int i = 0; i < count_bricks; i++)
+        for (const auto& block : block_)
         {
-            block_[i].transparent_timer_tick();
+            block->transparent_timer_tick();
         }
 
         ability_spawner();
     }
 
-    void ability_spawner()
+    void ability_spawner() const
     {
         if(ability_->get_is_alive()) return;
         
@@ -308,9 +268,9 @@ private:
         
         if (ball->pos.y + ball->size == bottom_edge_)
         {
-            if(safe_zone_.isAlive())
+            if(safe_zone_->isAlive())
             {
-                safe_zone_.death();
+                safe_zone_->death();
                 return;    
             }
 
@@ -328,7 +288,7 @@ private:
 
         for (int i = 0, j = 0; i < count_bricks; i++)
         {
-            if (!block_[i].get_is_show())
+            if (!block_[i]->get_is_show())
             {
                 j++;
             }
@@ -342,12 +302,12 @@ private:
         }
 
         if (ball->get_is_can_contact_platform() &&
-            intersects(ball->get_ball_AABB(), platform_.get_ball_AABB()))
+            intersects(ball->get_ball_AABB(), platform_->get_ball_AABB()))
         {
             
             float direction = -0.6f +
-            static_cast<float>(ball->pos.x + ball->size / 2 - platform_.get_ball_AABB().x_min) /
-                (platform_.get_ball_AABB().x_max - platform_.get_ball_AABB().x_min) * 1.2f;
+            static_cast<float>(ball->pos.x + ball->size / 2 - platform_->get_ball_AABB().x_min) /
+                (platform_->get_ball_AABB().x_max - platform_->get_ball_AABB().x_min) * 1.2f;
 
             if(direction > 0.6f) direction= 0.6f;
             if(direction < -0.6f) direction = -0.6f;
@@ -363,30 +323,30 @@ private:
 
         bool is_was_collision = false;
         
-        for (int i = 0; i < count_bricks; i++) {
-
-            if (!block_[i].get_is_transparent_now() &&
-                intersects(ball->get_ball_AABB(), block_[i].get_ball_AABB()))
+        for (const auto& block : block_)
+        {
+            if (!block->get_is_transparent_now() &&
+                intersects(ball->get_ball_AABB(), block->get_ball_AABB()))
             {
-                if (block_[i].get_is_show())
+                if (block->get_is_show())
                 {
                     if(!is_was_collision &&
-                        (contains(ball->get_right_side(), block_[i].get_ball_AABB()) ||
-                        contains(ball->get_left_side(), block_[i].get_ball_AABB())))
+                        (contains(ball->get_right_side(), block->get_ball_AABB()) ||
+                        contains(ball->get_left_side(), block->get_ball_AABB())))
                     {
                         ball->invert_dir_x();
                         is_was_collision = true;
                     }
 
                     if(!is_was_collision &&
-                        (contains(ball->get_top_side(), block_[i].get_ball_AABB()) ||
-                        contains(ball->get_bottom_side(), block_[i].get_ball_AABB())))
+                        (contains(ball->get_top_side(), block->get_ball_AABB()) ||
+                        contains(ball->get_bottom_side(), block->get_ball_AABB())))
                     {
                         ball->invert_dir_y();
                         is_was_collision = true;
                     }
-          
-                    block_[i].destroy_block();
+
+                    block->destroy_block();
                     ball->set_can_contact_platform(true);
                 }
             }
@@ -401,7 +361,7 @@ private:
         {
             is_all_destroyed &= !ball->get_is_alive();
         }
-        // return !ball_1_.get_is_alive() && !ball_2_.get_is_alive() && !ball_3_.get_is_alive();
+
         return is_all_destroyed;
     }
 
@@ -441,25 +401,22 @@ private:
     {
         if(shot_count_ <= 0) return;
         
-        const int current_time = helpers_.play_timer();
+        const int current_time = helpers_->play_timer();
         if(current_time - prev_time_shot_ > 0)
         {
-            prev_time_shot_ = helpers_.play_timer();
+            prev_time_shot_ = helpers_->play_timer();
             
             switch (shot_count_)
             {
             case 3:
                 shot_ball(balls_[0]);
-                // shot_ball(&ball_1_);
                 break;
 
             case 2:
                 shot_ball(balls_[1]);
-                // shot_ball(&ball_2_);
                 break;
             case 1:
                 shot_ball(balls_[2]);
-                // shot_ball(&ball_3_);
                 break;
             default: break;
             }
@@ -470,7 +427,7 @@ private:
 
     void shot_ball(Ball * ball) const
     {
-        ball->ball_on_platform_position_update(platform_.get_pos(), platform_.get_size());
+        ball->ball_on_platform_position_update(platform_->get_pos(), platform_->get_size());
         ball->set_dir_x(start_direction_shot_.x);
         ball->set_dir_y(start_direction_shot_.y);
 

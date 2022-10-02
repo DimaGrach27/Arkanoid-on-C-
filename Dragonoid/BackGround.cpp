@@ -1,6 +1,6 @@
 ﻿#include "BackGround.h"
 
-void BackGround::init()
+BackGround::BackGround()
 {
     getScreenSize(size.x, size.y);
     field_sprite = createSprite(Helpers::get_path_to_sprite(29).c_str());

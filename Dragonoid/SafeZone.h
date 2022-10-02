@@ -5,7 +5,8 @@
 class SafeZone
 {
 public:
-    void init();
+    SafeZone();
+    
     void restart();
     void death();
     void draw() const;
