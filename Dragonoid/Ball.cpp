@@ -6,6 +6,7 @@
 
 void Ball::restart()
 {
+    is_alive_ = true;
     set_can_contact_platform(false);
 }
 
@@ -17,6 +18,15 @@ void Ball::set_can_contact_platform(bool value)
 bool Ball::is_can_contact_platform() const
 {
     return is_can_contact_platform_;
+}
+bool Ball::is_alive() const
+{
+    return is_alive_;
+}
+
+void Ball::destroy_ball()
+{
+    is_alive_ = false;
 }
 
 
@@ -84,8 +94,30 @@ void Ball::invert_dir_x()
     part_pos_.x = direction_.x;
 }
 
+AABB Ball::get_right_side() const
+{
+    return {pos.x + size, pos.y + 1, pos.x + size, pos.y + size - 1};
+}
+
+AABB Ball::get_left_side() const
+{
+    return {pos.x, pos.y + size + 1, pos.x, pos.y + size - 1};
+}
+
+AABB Ball::get_top_side() const
+{
+    return {pos.x + 1, pos.y, pos.x + size - 1, pos.y};
+}
+
+AABB Ball::get_bottom_side() const
+{
+    return {pos.x + 1, pos.y + size, pos.x + size - 1, pos.y + size};
+}
+
 void Ball::draw_ball() const
 {
+    if(!is_alive_) return;
+    
     drawSprite(ball_sprite_, pos.x, pos.y);
     setSpriteSize(ball_sprite_, size, size);
 }

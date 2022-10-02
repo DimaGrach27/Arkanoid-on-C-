@@ -14,6 +14,7 @@ public:
     void restart();
     void ball_move();
     void draw_ball() const;
+    void destroy_ball();
     void draw_line_to_mouse(vector2_int mouse_pos) const;
     void ball_on_platform_position_update(vector2_int platform_pos, vector2_int platform_size);
     void set_dir_x(float dir_x);
@@ -23,10 +24,17 @@ public:
     void set_can_contact_platform(bool value);
 
     bool is_can_contact_platform() const;
+    bool is_alive() const;
     AABB get_ball_AABB() const;
+    AABB get_right_side() const;
+    AABB get_left_side() const;
+    AABB get_top_side() const;
+    AABB get_bottom_side() const;
 
 private:
     bool is_can_contact_platform_ = false;
+    bool is_alive_ = true;
+    
     constexpr static int count_balls_ = 100;
     
     const float ball_speed_ = 3;

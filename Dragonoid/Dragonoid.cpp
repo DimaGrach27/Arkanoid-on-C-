@@ -28,10 +28,11 @@ public:
 
     bool Init() override
     {
-
         back_ground_.init();
         platform_.init();
-        balls_.init();
+        ball_1_.init();
+        // ball_2_.init();
+        // ball_3_.init();
         safe_zone_.init();
         
         for (int i = 0; i < 8; i++)
@@ -93,13 +94,18 @@ public:
 
         if(is_ball_on_platform_)
         {
-            balls_.ball_on_platform_position_update(platform_.get_pos(), platform_.get_size());
-            balls_.draw_line_to_mouse(mouse_pos_);
+            ball_1_.ball_on_platform_position_update(platform_.get_pos(), platform_.get_size());
+            ball_1_.draw_line_to_mouse(mouse_pos_);
         }
         else
         {
-            balls_.ball_move();
-            calculate_near_element();
+            ball_1_.ball_move();
+            // ball_2_.ball_move();
+            // ball_3_.ball_move();
+            
+            calculate_near_element(&ball_1_);
+            // calculate_near_element(&ball_2_);
+            // calculate_near_element(&ball_3_);
         }
 
         for (int i = 0; i < count_; i++)
@@ -110,8 +116,11 @@ public:
         platform_.move();
         platform_.draw();
         safe_zone_.draw();
-        balls_.draw_ball();
-
+        
+        ball_1_.draw_ball();
+        // ball_2_.draw_ball();
+        // ball_3_.draw_ball();
+        
         start_game();
         
         return false;
@@ -130,16 +139,16 @@ public:
         if(button == FRMouseButton::LEFT && isReleased)
         {
             const vector2_float vec_dir(
-                mouse_pos_.x - balls_.pos.x + balls_.size / 2,
-                mouse_pos_.y - balls_.pos.y + balls_.size / 2);
+                mouse_pos_.x - ball_1_.pos.x + ball_1_.size / 2,
+                mouse_pos_.y - ball_1_.pos.y + ball_1_.size / 2);
             
             const float vec_mag_ = sqrt(vec_dir.x * vec_dir.x + vec_dir.y * vec_dir.y);
             const float vec_inv_mag_ = 1 / vec_mag_;
 
             start_direction_shot_ = {vec_dir.x * vec_inv_mag_, vec_dir.y * vec_inv_mag_};
             
-            balls_.set_dir_x(vec_dir.x * vec_inv_mag_);
-            balls_.set_dir_y(vec_dir.y * vec_inv_mag_);
+            ball_1_.set_dir_x(vec_dir.x * vec_inv_mag_);
+            ball_1_.set_dir_y(vec_dir.y * vec_inv_mag_);
             
             is_ball_on_platform_ = false;
         }
@@ -173,7 +182,10 @@ public:
 
 private:
 
-    Ball balls_;
+    Ball ball_1_;
+    // Ball ball_2_;
+    // Ball ball_3_;
+    
     Platform platform_;
     Block block_[count_bricks];
     SafeZone safe_zone_;
@@ -198,7 +210,9 @@ private:
             is_ball_on_platform_ = true;
             
             platform_.restart();
-            balls_.restart();
+            ball_1_.restart();
+            // ball_2_.restart();
+            // ball_3_.restart();
             safe_zone_.restart();
 
             for (int i = 0; i < 64; i++)
@@ -216,19 +230,25 @@ private:
         }
     }
     
-    void calculate_near_element()
+    void calculate_near_element(Ball *ball)
     {
-        if (balls_.pos.y + balls_.size == bottom_edge_)
+        if (ball->pos.y + ball->size == bottom_edge_)
         {
             if(safe_zone_.isAlive())
             {
                 safe_zone_.death();
                 return;    
             }
+
+            ball->destroy_ball();
+
+            if(is_all_ball_destroyed())
+            {
+                is_game_end_ = true;
+                start_game();
+                std::cout << "LOSE!" << std::endl;
+            }
             
-            is_game_end_ = true;
-            start_game();
-            std::cout << "LOSE!" << std::endl;
             return;
         }
 
@@ -247,54 +267,61 @@ private:
             }
         }
 
-        if (balls_.is_can_contact_platform() &&
-            intersects(balls_.get_ball_AABB(), platform_.get_ball_AABB())) {
+        if (ball->is_can_contact_platform() &&
+            intersects(ball->get_ball_AABB(), platform_.get_ball_AABB()))
+        {
             
             float direction = -0.6f +
-            static_cast<float>(balls_.pos.x + balls_.size / 2 - platform_.get_ball_AABB().x_min) /
+            static_cast<float>(ball->pos.x + ball->size / 2 - platform_.get_ball_AABB().x_min) /
                 (platform_.get_ball_AABB().x_max - platform_.get_ball_AABB().x_min) * 1.2f;
 
             if(direction > 0.6f) direction= 0.6f;
             if(direction < -0.6f) direction = -0.6f;
 
-            balls_.set_dir_x(direction);
+            ball->set_dir_x(direction);
         
             direction = 1.0f - abs(direction);
             direction *= -1;
 
-            balls_.set_dir_y(direction);
+            ball->set_dir_y(direction);
             return;
-            }
+        }
 
+        bool is_was_collision = false;
+        
         for (int i = 0; i < count_bricks; i++) {
 
             if (!block_[i].get_is_transparent_now() &&
-                intersects(balls_.get_ball_AABB(), block_[i].get_ball_AABB()))
+                intersects(ball->get_ball_AABB(), block_[i].get_ball_AABB()))
             {
-                const vector2_int point_right(balls_.pos.x + balls_.size, balls_.pos.y + balls_.size / 2);
-                const vector2_int point_left(balls_.pos.x, balls_.pos.y + balls_.size / 2);
-                const vector2_int point_top(balls_.pos.x + balls_.size / 2, balls_.pos.y);
-                const vector2_int point_bottom(balls_.pos.x + balls_.size / 2, balls_.pos.y + balls_.size);
-                
                 if (block_[i].get_is_show())
                 {
-                    if(contains(point_right, block_[i].get_ball_AABB()) ||
-                        contains(point_left, block_[i].get_ball_AABB()))
+                    if(!is_was_collision &&
+                        (contains(ball->get_right_side(), block_[i].get_ball_AABB()) ||
+                        contains(ball->get_left_side(), block_[i].get_ball_AABB())))
                     {
-                        balls_.invert_dir_x();
+                        ball->invert_dir_x();
+                        is_was_collision = true;
                     }
 
-                    if(contains(point_top, block_[i].get_ball_AABB()) ||
-                        contains(point_bottom, block_[i].get_ball_AABB()))
+                    if(!is_was_collision &&
+                        (contains(ball->get_top_side(), block_[i].get_ball_AABB()) ||
+                        contains(ball->get_bottom_side(), block_[i].get_ball_AABB())))
                     {
-                        balls_.invert_dir_y();
+                        ball->invert_dir_y();
+                        is_was_collision = true;
                     }
           
                     block_[i].destroy_block();
-                    balls_.set_can_contact_platform(true);
+                    ball->set_can_contact_platform(true);
                 }
             }
         }
+    }
+
+    bool is_all_ball_destroyed() const
+    {
+        return !ball_1_.is_alive()/* && !ball_2_.is_alive() && !ball_3_.is_alive()*/;
     }
 
     static bool intersects(AABB one, AABB two)
@@ -305,11 +332,27 @@ private:
         return true;
     }
 
+    static bool contains(AABB side, AABB box)
+    {
+        for (int x = side.x_min; x <= side.x_max; x++)
+        {
+            for (int y = side.y_min; y <= side.y_max; y++)
+            {
+                const vector2_int point = {x, y};
+                if(contains(point, box))
+                {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     static bool contains(vector2_int point, AABB box)
     {
         if(point.x < box.x_min || point.x > box.x_max) return false;
         if(point.y < box.y_min || point.y > box.y_max) return false;
-
+        
         return true;
     }
 };
