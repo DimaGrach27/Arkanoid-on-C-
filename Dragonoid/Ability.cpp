@@ -3,7 +3,7 @@
 void Ability::destroy()
 {
     is_alive_ = false;
-
+    position_ = {0,0};
     destroySprite(sprite_);
 }
 

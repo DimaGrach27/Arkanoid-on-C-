@@ -27,9 +27,12 @@ public:
     bool Init() override
     {
         ability_ = new Ability;
-        balls_[0] = new Ball;
-        balls_[1] = new Ball;
-        balls_[2] = new Ball;
+        
+        for (auto& ball : balls_)
+        {
+            ball = new Ball;
+        }
+        
         platform_ = new Platform;
         safe_zone_ = new SafeZone;
         back_ground_ = new BackGround;
@@ -117,6 +120,7 @@ public:
         }
         
         ability_->move();
+        if(ability_->get_ability_AABB().y_max > bottom_edge_) ability_->destroy();
         
         platform_->move();
         platform_->draw();
@@ -245,6 +249,8 @@ private:
 
     void ability_spawner() const
     {
+        if(is_ball_on_platform_) return;
+        
         if(ability_->get_is_alive()) return;
         
         ability_->spawn();
