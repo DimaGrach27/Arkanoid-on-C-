@@ -6,11 +6,12 @@ class Ball
 {
     
 public:
+    Ball();
+    
     const int size = 30;
 
     vector2_int pos {0,0};
     
-    void init();
     void restart();
     void ball_move();
     void destroy_ball();

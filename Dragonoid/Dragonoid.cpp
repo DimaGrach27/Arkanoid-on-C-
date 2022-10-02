@@ -1,6 +1,9 @@
+#include <chrono>
 #include <iostream>
+#include <random>
 #include <string>
 
+#include "Ability.h"
 #include "BackGround.h"
 #include "Framework.h"
 #include "Helpers.h"
@@ -28,14 +31,24 @@ public:
 
     bool Init() override
     {
+        ability_ = new Ability;
+        balls_[0] = new Ball;
+        balls_[1] = new Ball;
+        balls_[2] = new Ball;
+
+        // for (const auto ball : balls_)
+        // {
+        //     ball->init();
+        // }
         back_ground_.init();
         platform_.init();
-        ball_1_.init();
-        ball_2_.init();
-        ball_3_.init();
+        // ball_1_.init();
+        // ball_2_.init();
+        // ball_3_.init();
         safe_zone_.init();
 
-        ball_1_.set_is_was_init(true);
+        // ball_1_.set_is_was_init(true);
+        balls_[0]->set_is_was_init(true);
         
         for (int i = 0; i < 8; i++)
         {
@@ -98,21 +111,29 @@ public:
 
         if(is_ball_on_platform_)
         {
-            ball_1_.ball_on_platform_position_update(platform_.get_pos(), platform_.get_size());
-            ball_1_.draw_line_to_mouse(mouse_pos_);
+            balls_[0]->ball_on_platform_position_update(platform_.get_pos(), platform_.get_size());
+            balls_[0]->draw_line_to_mouse(mouse_pos_);
+            // ball_1_.ball_on_platform_position_update(platform_.get_pos(), platform_.get_size());
+            // ball_1_.draw_line_to_mouse(mouse_pos_);
         }
         else
         {
-            move_ball(&ball_1_);
-            move_ball(&ball_2_);
-            move_ball(&ball_3_);
-            // ball_1_.ball_move();
-            // ball_2_.ball_move();
-            // ball_3_.ball_move();
+            for (const auto ball : balls_)
+            {
+                move_ball(ball);
+            }
+            // move_ball(&ball_1_);
+            // move_ball(&ball_2_);
+            // move_ball(&ball_3_);
+
+            for (const auto ball : balls_)
+            {
+                calculate_near_element(ball);
+            }
             
-            calculate_near_element(&ball_1_);
-            calculate_near_element(&ball_2_);
-            calculate_near_element(&ball_3_);
+            // calculate_near_element(&ball_1_);
+            // calculate_near_element(&ball_2_);
+            // calculate_near_element(&ball_3_);
         }
 
         for (int i = 0; i < count_; i++)
@@ -120,16 +141,21 @@ public:
             block_[i].show_block();
         }
         
+        ability_->move();
+        
         platform_.move();
         platform_.draw();
         safe_zone_.draw();
+        ability_->draw();
 
-        draw_ball(&ball_1_);
-        draw_ball(&ball_2_);
-        draw_ball(&ball_3_);
-        // ball_1_.draw_ball();
-        // ball_2_.draw_ball();
-        // ball_3_.draw_ball();
+        for (const auto ball : balls_)
+        {
+            draw_ball(ball);
+        }
+        
+        // draw_ball(&ball_1_);
+        // draw_ball(&ball_2_);
+        // draw_ball(&ball_3_);
         
         start_game();
         
@@ -151,8 +177,8 @@ public:
         if(button == FRMouseButton::LEFT && isReleased)
         {
             const vector2_float vec_dir(
-                mouse_pos_.x - ball_1_.pos.x + ball_1_.size / 2,
-                mouse_pos_.y - ball_1_.pos.y + ball_1_.size / 2);
+                mouse_pos_.x - balls_[0]->pos.x + balls_[0]->size / 2,
+                mouse_pos_.y - balls_[0]->pos.y + balls_[0]->size / 2);
             
             const float vec_mag_ = sqrt(vec_dir.x * vec_dir.x + vec_dir.y * vec_dir.y);
             const float vec_inv_mag_ = 1 / vec_mag_;
@@ -198,9 +224,11 @@ public:
 
 private:
 
-    Ball ball_1_;
-    Ball ball_2_;
-    Ball ball_3_;
+    Ability* ability_ = nullptr;
+    Ball* balls_[3] = {};
+    // Ball ball_1_;
+    // Ball ball_2_;
+    // Ball ball_3_;
     
     Platform platform_;
     Block block_[count_bricks];
@@ -228,10 +256,14 @@ private:
             is_ball_on_platform_ = true;
             
             platform_.restart();
-            ball_1_.restart();
-            ball_1_.set_is_was_init(true);
-            ball_2_.restart();
-            ball_3_.restart();
+            // ball_1_.restart();
+            for (const auto ball : balls_)
+            {
+                ball->restart();
+            }
+            balls_[0]->set_is_was_init(true);
+            // ball_2_.restart();
+            // ball_3_.restart();
             safe_zone_.restart();
 
             for (int i = 0; i < 64; i++)
@@ -247,6 +279,15 @@ private:
         {
             block_[i].transparent_timer_tick();
         }
+
+        ability_spawner();
+    }
+
+    void ability_spawner()
+    {
+        if(ability_->get_is_alive()) return;
+        
+        ability_->spawn();
     }
 
     static void draw_ball(const Ball *ball)
@@ -354,7 +395,14 @@ private:
 
     bool is_all_ball_destroyed() const
     {
-        return !ball_1_.get_is_alive() && !ball_2_.get_is_alive() && !ball_3_.get_is_alive();
+        bool is_all_destroyed = true;
+
+        for (const auto ball : balls_)
+        {
+            is_all_destroyed &= !ball->get_is_alive();
+        }
+        // return !ball_1_.get_is_alive() && !ball_2_.get_is_alive() && !ball_3_.get_is_alive();
+        return is_all_destroyed;
     }
 
     static bool intersects(AABB one, AABB two)
@@ -401,14 +449,17 @@ private:
             switch (shot_count_)
             {
             case 3:
-                shot_ball(&ball_1_);
+                shot_ball(balls_[0]);
+                // shot_ball(&ball_1_);
                 break;
 
             case 2:
-                shot_ball(&ball_2_);
+                shot_ball(balls_[1]);
+                // shot_ball(&ball_2_);
                 break;
             case 1:
-                shot_ball(&ball_3_);
+                shot_ball(balls_[2]);
+                // shot_ball(&ball_3_);
                 break;
             default: break;
             }
@@ -431,4 +482,6 @@ private:
 int main(int argc, char* argv[])
 {
     return run(new Drogonoid);
+    
+    // return 0;
 }

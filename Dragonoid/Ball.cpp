@@ -4,6 +4,16 @@
 
 #include "Helpers.h"
 
+Ball::Ball()
+{
+    ball_sprite_ = createSprite(Helpers::get_path_to_sprite(58).c_str());
+
+    for (int i = 0; i < count_balls_; i++)
+    {
+        ball_small_sprite_[i] = createSprite(Helpers::get_path_to_sprite(63).c_str());
+    }
+}
+
 void Ball::restart()
 {
     is_was_init_ = false;
@@ -134,15 +144,6 @@ void Ball::draw_ball() const
     setSpriteSize(ball_sprite_, size, size);
 }
 
-void Ball::init()
-{
-    ball_sprite_ = createSprite(Helpers::get_path_to_sprite(58).c_str());
-
-    for (int i = 0; i < count_balls_; i++)
-    {
-        ball_small_sprite_[i] = createSprite(Helpers::get_path_to_sprite(63).c_str());
-    }
-}
 
 void Ball::ball_move()
 {
