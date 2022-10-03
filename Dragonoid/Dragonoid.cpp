@@ -15,11 +15,16 @@ class Drogonoid final : public Framework {
     
 
 public:
-
+    void set_screen_size(int width, int height)
+    {
+        size_screen_ .x = width;
+        size_screen_ .y = height;
+    }
+    
     void PreInit(int& width, int& height, bool& fullscreen) override
     {
-        width = 800;
-        height = 600;
+        width = size_screen_.x;
+        height = size_screen_.y;
 
         bottom_edge_ = height;
         fullscreen = false;
@@ -42,37 +47,85 @@ public:
         ability_controller_ = new AbilityController(platform_, helpers_);
         
         balls_[0]->set_is_was_init(true);
+
+        vector2_int screen_size(0,0);
+        getScreenSize(screen_size.x, screen_size.y);
+        int start_point = screen_size.x - 800;
+        start_point /= 2;
         
         for (int i = 0; i < 8; i++)
         {
-            int offset = i > 0 ? 8 : 0;
+            int offset = i > 0 ? 2 : 0;
             vector2_int spawn_pos =
             {
                 0,
-                12 + i * block_size.y + i * offset
+                26 + i * block_size.y + i * offset
             };
-            
-            for (int j = 0; j < 8; j++)
+
+            for (int j = 0; j < 9; j++) // was j < 8
             {
-                offset = j > 0 ? 8 : 0;
-                spawn_pos.x = 12 + j * block_size.x + j * offset;
+                offset = j > 0 ? 1 : 0;
+                spawn_pos.x = start_point + 0 + j * block_size.x + j * offset;
+                // offset = j > 0 ? 2 : 0;
+                // spawn_pos.x = start_point + 32 + j * block_size.x + j * offset;
+                bool is_blue = false;
+                if(i == 0 && (j == 2 || j == 3 || j == 5 || j == 6))
+                {
+                    is_blue = true;
+                }
+                else if(i == 1 && (j > 0 && j < 8))
+                {
+                    is_blue = true;
+                }
+                else if(i == 2 && (j > 0 && j < 8))
+                {
+                    is_blue = true;
+                }
+                else if(i == 3 && (j > 0 && j < 8))
+                {
+                    is_blue = true;
+                }
+                else if(i == 3 && (j > 0 && j < 8))
+                {
+                    is_blue = true;
+                }
+                else if (i == 4 && (j > 0 && j < 8))
+                {
+                    is_blue = true;
+                }
+                else if (i == 5 && (j > 1 && j < 7))
+                {
+                    is_blue = true;
+                }
+                else if (i == 6 && (j > 2 && j < 6))
+                {
+                    is_blue = true;
+                }
+                else if (i == 7 && j == 4)
+                {
+                    is_blue = true;
+                }
                 
-                if(i == 2 && (j == 2 || j == 5 || j == 0 || j == 7))
-                {
-                    block_[count_] = new Block(11, spawn_pos, true);
-                }
-                else if(i == 4 && (j == 2 || j == 5))
-                {
-                    block_[count_] = new Block(11, spawn_pos, true);
-                }
-                else if(i == 6 && (j == 3 || j == 4))
-                {
-                    block_[count_] = new Block(11, spawn_pos, true);
-                }
-                else
-                {
-                    block_[count_] = new Block(13, spawn_pos, false);
-                }
+                block_[count_] = is_blue ?
+                    new Block(11, spawn_pos, true) :
+                    new Block(13, spawn_pos, false);
+                
+                // if(i == 2 && (j == 2 || j == 5 || j == 0 || j == 7))
+                // {
+                //     block_[count_] = new Block(11, spawn_pos, true);
+                // }
+                // else if(i == 4 && (j == 2 || j == 5))
+                // {
+                //     block_[count_] = new Block(11, spawn_pos, true);
+                // }
+                // else if(i == 6 && (j == 3 || j == 4))
+                // {
+                //     block_[count_] = new Block(11, spawn_pos, true);
+                // }
+                // else
+                // {
+                //     block_[count_] = new Block(13, spawn_pos, false);
+                // }
                
                 count_++;
             }
@@ -215,8 +268,10 @@ private:
     BackGround* back_ground_ = nullptr;
     Helpers* helpers_ = nullptr;
     AbilityController* ability_controller_ = nullptr;
-    
+
+    vector2_int size_screen_ = {800, 600};
     vector2_int mouse_pos_ {0,0};
+    
     vector2_float start_direction_shot_ {0,0};
 
     bool is_ball_on_platform_ = true;
@@ -461,7 +516,38 @@ private:
 
 int main(int argc, char* argv[])
 {
-    return run(new Drogonoid);
+    Drogonoid* drogonoid = new Drogonoid;
+
+    string prev_command;
+    
+    for (int i = 0; i < argc; i++)
+    {
+        if(prev_command == "-window")
+        {
+            string delimiter = "x";
+            string size = argv[i];
+            string token;
+            size_t pos = 0;
+            vector2_int size_screen = {0,0};
+            while ((pos = size.find(delimiter)) != string::npos) {
+                token = size.substr(0, pos);
+                cout << token << endl;
+                size_screen.x = std::stoi(token);
+                size.erase(0, pos + delimiter.length());
+            }
+            cout << size << endl;
+            size_screen.y = std::stoi(size);
+            drogonoid->set_screen_size(size_screen.x, size_screen.y);
+        }
+        
+        prev_command = argv[i];
+        cout << "argv: " << prev_command << endl;
+    }
+    
+    
+    return run(drogonoid);
+
+
     
     // return 0;
 }
