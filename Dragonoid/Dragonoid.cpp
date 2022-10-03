@@ -59,74 +59,32 @@ public:
             vector2_int spawn_pos =
             {
                 0,
-                26 + i * block_size.y + i * offset
+                22 + i * block_size.y + i * offset
             };
 
-            for (int j = 0; j < 9; j++) // was j < 8
+            for (int j = 0; j < 8; j++)
             {
-                offset = j > 0 ? 1 : 0;
-                spawn_pos.x = start_point + 0 + j * block_size.x + j * offset;
-                // offset = j > 0 ? 2 : 0;
-                // spawn_pos.x = start_point + 32 + j * block_size.x + j * offset;
+                offset = j > 0 ? 2 : 0;
+                spawn_pos.x = start_point + 32 + j * block_size.x + j * offset;
                 bool is_blue = false;
-                if(i == 0 && (j == 2 || j == 3 || j == 5 || j == 6))
-                {
-                    is_blue = true;
-                }
-                else if(i == 1 && (j > 0 && j < 8))
-                {
-                    is_blue = true;
-                }
-                else if(i == 2 && (j > 0 && j < 8))
-                {
-                    is_blue = true;
-                }
-                else if(i == 3 && (j > 0 && j < 8))
-                {
-                    is_blue = true;
-                }
-                else if(i == 3 && (j > 0 && j < 8))
-                {
-                    is_blue = true;
-                }
-                else if (i == 4 && (j > 0 && j < 8))
-                {
-                    is_blue = true;
-                }
-                else if (i == 5 && (j > 1 && j < 7))
-                {
-                    is_blue = true;
-                }
-                else if (i == 6 && (j > 2 && j < 6))
-                {
-                    is_blue = true;
-                }
-                else if (i == 7 && j == 4)
-                {
-                    is_blue = true;
-                }
                 
+                if(i == 2 && (j == 2 || j == 5 || j == 0 || j == 7))
+                {
+                    is_blue = true;
+                }
+                else if(i == 4 && (j == 2 || j == 5))
+                {
+                    is_blue = true;
+                }
+                else if(i == 6 && (j == 3 || j == 4))
+                {
+                    is_blue = true;
+                }
+
                 block_[count_] = is_blue ?
                     new Block(11, spawn_pos, true) :
                     new Block(13, spawn_pos, false);
                 
-                // if(i == 2 && (j == 2 || j == 5 || j == 0 || j == 7))
-                // {
-                //     block_[count_] = new Block(11, spawn_pos, true);
-                // }
-                // else if(i == 4 && (j == 2 || j == 5))
-                // {
-                //     block_[count_] = new Block(11, spawn_pos, true);
-                // }
-                // else if(i == 6 && (j == 3 || j == 4))
-                // {
-                //     block_[count_] = new Block(11, spawn_pos, true);
-                // }
-                // else
-                // {
-                //     block_[count_] = new Block(13, spawn_pos, false);
-                // }
-               
                 count_++;
             }
         }
@@ -543,11 +501,5 @@ int main(int argc, char* argv[])
         prev_command = argv[i];
         cout << "argv: " << prev_command << endl;
     }
-    
-    
     return run(drogonoid);
-
-
-    
-    // return 0;
 }

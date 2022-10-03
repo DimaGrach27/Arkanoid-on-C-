@@ -53,7 +53,7 @@ bool Ability::spawn()
     vector2_int screen = {0,0};
     getScreenSize(screen.x, screen.y);
     
-    position_.x = (screen.x - 50) * random / 100;
+    position_.x = (screen.x - size_.x) * random / 100;
     position_.y = (screen.y - 300) * random / 100;
     
     is_alive_ = true;

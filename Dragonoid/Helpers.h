@@ -20,7 +20,7 @@ public:
 
     static string get_path_to_sprite(int number_sprite)
     {
-        const string data_folder = "F:/Dima/Development/C++ projects/Dragonoid/Dragonoid/data/"; // for PC
+        const string data_folder = "F:/Dima/Development/C++ projects/Arkanoid for Dragons Lake/Dragonoid/data/"; // for PC
         // const string data_folder = "D:/Development/Projects_on_CPP/Dragonoid/Dragonoid/data/"; // for Notebook
         const string sprite_name = "-Breakout-Tiles.png";
         

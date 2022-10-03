@@ -19,7 +19,7 @@ private:
     bool is_alive_ = false;
     
     vector2_int position_ = {0,0};
-    vector2_int size_ = {80,20};
+    vector2_int size_ = {120,30};
     
     ability_type ability_ = none;
     
