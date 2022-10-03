@@ -159,6 +159,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Ability.cpp" />
+    <ClCompile Include="AbilityController.cpp" />
     <ClCompile Include="BackGround.cpp" />
     <ClCompile Include="Ball.cpp">
       <RuntimeLibrary>MultiThreadedDebugDll</RuntimeLibrary>
@@ -310,6 +311,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Ability.h" />
+    <ClInclude Include="AbilityController.h" />
     <ClInclude Include="BackGround.h" />
     <ClInclude Include="Ball.h" />
     <ClInclude Include="Block.h" />

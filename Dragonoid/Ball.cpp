@@ -79,7 +79,7 @@ void Ball::draw_line_to_mouse(vector2_int mouse_pos) const
     }
 }
 
-AABB Ball::get_ball_AABB() const
+AABB Ball::get_AABB() const
 {
     return  {pos.x, pos.y, pos.x + size, pos.y + size};
 }

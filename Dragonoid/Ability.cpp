@@ -75,7 +75,7 @@ ability_type Ability::get_ability_type() const
     return ability_;
 }
 
-AABB Ability::get_ability_AABB() const
+AABB Ability::get_AABB() const
 {
     return  {
         position_.x, position_.y,

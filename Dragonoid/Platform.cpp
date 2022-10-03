@@ -40,7 +40,6 @@ void Platform::restart()
 void Platform::move()
 {
     const int newPosition = pos.x + move_direction_ * platform_speed_;
-
     int screen_x;
     int screen_y;
     getScreenSize(screen_x, screen_y);
@@ -65,8 +64,29 @@ void Platform::draw()
     setSpriteSize(animation_sprite_platform_[tick_], size.x, size.y);
     drawSprite(animation_sprite_platform_[tick_], pos.x, pos.y);
 }
+void Platform::restore_size()
+{
+    size.x = 200;
+    size.y = 40;
+}
 
-AABB Platform::get_ball_AABB() const
+void Platform::restore_speed()
+{
+    platform_speed_ = 2;
+}
+
+void Platform::set_size(int newSize)
+{
+    size.x = newSize;
+    std::cout << "SIZE: " << size.x << std::endl;
+}
+
+void Platform::set_speed(int speed)
+{
+    platform_speed_ = speed;
+}
+
+AABB Platform::get_AABB() const
 {
     return  {pos.x, pos.y, pos.x + size.x, pos.y + size.y};
 }

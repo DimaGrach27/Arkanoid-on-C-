@@ -1,4 +1,5 @@
 #include "Ability.h"
+#include "AbilityController.h"
 #include "BackGround.h"
 #include "Framework.h"
 #include "Helpers.h"
@@ -37,6 +38,8 @@ public:
         safe_zone_ = new SafeZone;
         back_ground_ = new BackGround;
         helpers_ = new Helpers;
+
+        ability_controller_ = new AbilityController(platform_, helpers_);
         
         balls_[0]->set_is_was_init(true);
         
@@ -91,7 +94,7 @@ public:
         {
             timer_tick();
             prev_time_ = helpers_->play_timer();
-            cout << "Play time: " << prev_time_<< "(s)" << endl;
+            // cout << "Play time: " << prev_time_<< "(s)" << endl;
         }
         
         back_ground_->draw();
@@ -112,6 +115,12 @@ public:
             {
                 calculate_near_element(ball);
             }
+
+            if(intersects(platform_->get_AABB(), ability_->get_AABB()))
+            {
+                ability_controller_->catch_ability(ability_->get_ability_type());
+                ability_->destroy();
+            }
         }
 
         for (int i = 0; i < count_; i++)
@@ -120,7 +129,10 @@ public:
         }
         
         ability_->move();
-        if(ability_->get_ability_AABB().y_max > bottom_edge_) ability_->destroy();
+        if(ability_->get_AABB().y_max > bottom_edge_)
+        {
+            ability_->destroy();
+        }
         
         platform_->move();
         platform_->draw();
@@ -133,7 +145,8 @@ public:
         }
 
         start_game();
-        
+
+        ability_controller_->tick();
         return false;
     }
 
@@ -201,6 +214,7 @@ private:
     SafeZone* safe_zone_ = nullptr;
     BackGround* back_ground_ = nullptr;
     Helpers* helpers_ = nullptr;
+    AbilityController* ability_controller_ = nullptr;
     
     vector2_int mouse_pos_ {0,0};
     vector2_float start_direction_shot_ {0,0};
@@ -234,6 +248,8 @@ private:
             {
                 block->restart();
             }
+
+            ability_controller_->disable_ability();
         }
     }
 
@@ -301,6 +317,7 @@ private:
 
             if (j == count_bricks)
             {
+                is_game_end_ = true;
                 start_game();
                 std::cout << "WIN!" << std::endl;
                 return;
@@ -308,12 +325,12 @@ private:
         }
 
         if (ball->get_is_can_contact_platform() &&
-            intersects(ball->get_ball_AABB(), platform_->get_ball_AABB()))
+            intersects(ball->get_AABB(), platform_->get_AABB()))
         {
             
             float direction = -0.6f +
-            static_cast<float>(ball->pos.x + ball->size / 2 - platform_->get_ball_AABB().x_min) /
-                (platform_->get_ball_AABB().x_max - platform_->get_ball_AABB().x_min) * 1.2f;
+            static_cast<float>(ball->pos.x + ball->size / 2 - platform_->get_AABB().x_min) /
+                (platform_->get_AABB().x_max - platform_->get_AABB().x_min) * 1.2f;
 
             if(direction > 0.6f) direction= 0.6f;
             if(direction < -0.6f) direction = -0.6f;
@@ -332,21 +349,21 @@ private:
         for (const auto& block : block_)
         {
             if (!block->get_is_transparent_now() &&
-                intersects(ball->get_ball_AABB(), block->get_ball_AABB()))
+                intersects(ball->get_AABB(), block->get_AABB()))
             {
                 if (block->get_is_show())
                 {
                     if(!is_was_collision &&
-                        (contains(ball->get_right_side(), block->get_ball_AABB()) ||
-                        contains(ball->get_left_side(), block->get_ball_AABB())))
+                        (contains(ball->get_right_side(), block->get_AABB()) ||
+                        contains(ball->get_left_side(), block->get_AABB())))
                     {
                         ball->invert_dir_x();
                         is_was_collision = true;
                     }
 
                     if(!is_was_collision &&
-                        (contains(ball->get_top_side(), block->get_ball_AABB()) ||
-                        contains(ball->get_bottom_side(), block->get_ball_AABB())))
+                        (contains(ball->get_top_side(), block->get_AABB()) ||
+                        contains(ball->get_bottom_side(), block->get_AABB())))
                     {
                         ball->invert_dir_y();
                         is_was_collision = true;

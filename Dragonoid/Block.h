@@ -10,7 +10,7 @@ public:
     void restart();
     void show_block() const;
     void destroy_block();
-    AABB get_ball_AABB() const;
+    AABB get_AABB() const;
     bool get_is_show() const;
     bool get_is_transparent_ability() const;
     bool get_is_transparent_now() const;

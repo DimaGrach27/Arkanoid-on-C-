@@ -13,7 +13,7 @@ public:
     void destroy();
     void draw() const;
 
-    AABB get_ability_AABB() const;
+    AABB get_AABB() const;
     
 private:
     bool is_alive_ = false;

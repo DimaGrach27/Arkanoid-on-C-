@@ -30,7 +30,7 @@ public:
     bool get_is_was_init() const;
     bool get_is_alive() const;
     
-    AABB get_ball_AABB() const;
+    AABB get_AABB() const;
     AABB get_right_side() const;
     AABB get_left_side() const;
     AABB get_top_side() const;

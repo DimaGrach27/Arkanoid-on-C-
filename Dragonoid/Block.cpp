@@ -19,7 +19,7 @@ void Block::restart()
     is_show_ = true;
 }
 
-AABB Block::get_ball_AABB() const
+AABB Block::get_AABB() const
 {
     return  {pos_.x, pos_.y, pos_.x + block_size.x, pos_.y + block_size.y};
 }
